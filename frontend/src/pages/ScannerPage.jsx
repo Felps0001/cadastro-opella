@@ -80,17 +80,28 @@ export default function ScannerPage() {
       setScanning(true);
       await html5.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        {
+          fps: 10,
+          // Quadro de leitura responsivo (70% do menor lado do video)
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const min = Math.min(viewfinderWidth, viewfinderHeight);
+            const size = Math.max(150, Math.floor(min * 0.7));
+            return { width: size, height: size };
+          },
+          aspectRatio: 1.0,
+        },
         handleDecoded,
         () => {},
       );
     } catch (err) {
       setScanning(false);
-      setResult({
-        type: "err",
-        message:
-          "Nao foi possivel acessar a camera. Permita o acesso e use HTTPS.",
-      });
+      const msg =
+        err?.name === "NotAllowedError"
+          ? "Permissao da camera negada. Toque no cadeado do navegador, permita a camera e tente de novo."
+          : err?.name === "NotFoundError"
+            ? "Nenhuma camera encontrada neste dispositivo."
+            : "Nao foi possivel acessar a camera. Use HTTPS e permita o acesso a camera.";
+      setResult({ type: "err", message: msg });
     }
   }, [handleDecoded]);
 
@@ -112,9 +123,15 @@ export default function ScannerPage() {
         <h1>Leitor de brindes</h1>
       </div>
 
+      {/* O container da camera precisa estar SEMPRE montado no DOM.
+          Escondemos apenas quando ha um resultado na tela. */}
+      <div
+        id="reader"
+        style={{ display: result ? "none" : "block" }}
+      />
+
       {!scanning && !result && (
         <>
-          <div id="reader" />
           <div className="spacer-14" />
           <button
             className="btn btn--primary"
@@ -126,9 +143,8 @@ export default function ScannerPage() {
         </>
       )}
 
-      {scanning && (
+      {scanning && !result && (
         <>
-          <div id="reader" />
           <div className="spacer-14" />
           <p style={{ opacity: 0.85 }}>Aponte a camera para o QR Code...</p>
           <button
