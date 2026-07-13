@@ -10,13 +10,25 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // CORS
+// Normaliza uma origem removendo barra(s) final(is) para comparar sem falhas
+const normalizeOrigin = (o) => String(o).trim().replace(/\/+$/, "");
+
 const corsOrigin = process.env.CORS_ORIGIN || "*";
-const allowedOrigins =
-  corsOrigin === "*" ? "*" : corsOrigin.split(",").map((o) => o.trim());
+const allowAll = corsOrigin.trim() === "*";
+const allowedOrigins = allowAll
+  ? []
+  : corsOrigin.split(",").map(normalizeOrigin).filter(Boolean);
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin(origin, callback) {
+      // Requisicoes sem origem (curl, apps nativos, health checks) sao liberadas
+      if (!origin || allowAll) return callback(null, true);
+      if (allowedOrigins.includes(normalizeOrigin(origin))) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origem nao permitida pelo CORS: ${origin}`));
+    },
   })
 );
 
