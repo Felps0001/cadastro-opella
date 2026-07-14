@@ -18,6 +18,42 @@ function requireStaff(req, res, next) {
 }
 
 /**
+ * GET /api/staff/registrations
+ * Lista todos os cadastros (para a pagina de gestao / exportacao CSV)
+ */
+router.get("/registrations", requireStaff, async (req, res) => {
+  try {
+    const registrations = await Registration.find({})
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.json(
+      registrations.map((r) => ({
+        code: r.code,
+        nome: r.nome || "",
+        email: r.email || "",
+        telefone: r.telefone || "",
+        localTrabalho: r.localTrabalho || "",
+        codigoLoja: r.codigoLoja || "",
+        atribuicao: r.atribuicao || "",
+        farmaceuticoFormado: Boolean(r.farmaceuticoFormado),
+        crf: r.crf || "",
+        crfUf: r.crfUf || "",
+        aceiteComunicacao: Boolean(r.aceiteComunicacao),
+        canaisContato: Array.isArray(r.canaisContato) ? r.canaisContato : [],
+        nps: r.nps ?? null,
+        redeemed: Boolean(r.redeemed),
+        redeemedAt: r.redeemedAt || null,
+        createdAt: r.createdAt || null,
+      }))
+    );
+  } catch (err) {
+    console.error("[staff] erro ao listar cadastros:", err);
+    return res.status(500).json({ error: "Erro ao listar cadastros." });
+  }
+});
+
+/**
  * GET /api/staff/lookup/:code
  * Consulta o cadastro para a tela do tablet (mostra dados + status)
  */

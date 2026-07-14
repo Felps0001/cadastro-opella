@@ -52,4 +52,11 @@ export async function staffRedeem(code) {
   return handle(res);
 }
 
+export async function staffListRegistrations() {
+  const res = await fetch(`${API_URL}/api/staff/registrations`, {
+    headers: { "x-staff-token": STAFF_TOKEN },
+  });
+  return handle(res);
+}
+
 export { API_URL };
