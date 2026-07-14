@@ -92,10 +92,11 @@ body {
   align-items: center;
   gap: 9px;
 }
-.brand__name {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+.brand__logo {
+  height: 34px;
+  width: auto;
+  display: block;
+  user-select: none;
 }
 
 /* ---------- Form ---------- */
@@ -251,10 +252,20 @@ body {
   border-color: var(--opella-green-bright);
 }
 .option.is-selected {
-  border-color: var(--opella-purple);
-  background: #eaf4ec;
-  box-shadow: 0 0 0 3px rgba(21, 104, 61, 0.12);
-  color: var(--opella-deep);
+  border-color: var(--opella-deep);
+  background: linear-gradient(120deg, var(--opella-green-bright), var(--opella-purple));
+  box-shadow: 0 8px 20px -8px rgba(21, 104, 61, 0.55);
+  color: #fff;
+  font-weight: 700;
+}
+.option.is-selected::after {
+  content: "\2713";
+  float: right;
+  margin-left: 8px;
+  font-weight: 800;
+}
+.option.is-selected:hover {
+  border-color: var(--opella-deep);
 }
 
 /* Escala NPS 0-10 */
