@@ -25,6 +25,21 @@ form-opella-abrafarma/
 3. No estande, a equipe abre a **tela de leitura no tablet** (`/leitor`), escaneia o QR e o sistema **dá baixa** automaticamente.
 4. Se o brinde já tiver sido retirado, a tela avisa.
 
+## Páginas (Frontend)
+
+| Rota              | Página              | Descrição                                                                 |
+| ----------------- | ------------------- | ------------------------------------------------------------------------- |
+| `/`               | `FormPage`          | Formulário público de cadastro (celular)                                  |
+| `/sucesso/:code`  | `SuccessPage`       | Tela de sucesso com o QR Code gerado                                      |
+| `/validar/:code`  | `ValidatePage`      | Página pública exibida ao escanear o link do QR                           |
+| `/leitor`         | `ScannerPage`       | Leitura por **câmera** (tablet) — dá baixa no brinde                      |
+| `/leitor-scanner` | `ScannerDevicePage` | Leitura por **scanner de dispositivo** (pistola/USB) — dá baixa no brinde |
+| `/cadastros`      | `RegistrationsPage` | Gestão dos cadastros + exportação CSV (equipe)                            |
+
+> As telas de leitura (`/leitor`, `/leitor-scanner`) e `/cadastros` são de uso da equipe e dependem do `VITE_STAFF_TOKEN`.
+>
+> O `/leitor-scanner` não usa câmera: basta manter a página aberta e disparar o scanner físico (funciona como teclado, envia o código + Enter).
+
 ## Configuração
 
 Preencha os arquivos `.env` (já criados a partir dos `.env.example`):
@@ -66,7 +81,9 @@ npm run dev
 Acesse:
 
 - Formulário: `http://localhost:5173/`
-- Leitor (tablet): `http://localhost:5173/leitor`
+- Leitor por câmera (tablet): `http://localhost:5173/leitor`
+- Leitor por scanner de dispositivo: `http://localhost:5173/leitor-scanner`
+- Cadastros (equipe): `http://localhost:5173/cadastros`
 
 ## Testar no celular / tablet (mesma rede)
 
