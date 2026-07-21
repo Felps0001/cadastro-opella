@@ -19,6 +19,7 @@ export default function ScannerPage() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null); // { type, data, message }
   const lastCodeRef = useRef("");
+  const cooldownRef = useRef(null);
 
   const stopScanner = useCallback(async () => {
     const inst = scannerRef.current;
@@ -38,12 +39,12 @@ export default function ScannerPage() {
     async (decodedText) => {
       const code = extractCode(decodedText);
       if (!code || busy) return;
+      // Evita reprocessar o mesmo codigo em leituras seguidas.
       if (code === lastCodeRef.current) return;
       lastCodeRef.current = code;
 
       setBusy(true);
-      await stopScanner();
-
+      // A camera continua ligada: assim que outro QR Code aparecer, ja le.
       try {
         // Da baixa direto; o backend avisa se ja foi retirado.
         const data = await staffRedeem(code);
@@ -66,9 +67,14 @@ export default function ScannerPage() {
         }
       } finally {
         setBusy(false);
+        // Libera o mesmo codigo apos um intervalo, caso precise reler.
+        if (cooldownRef.current) clearTimeout(cooldownRef.current);
+        cooldownRef.current = setTimeout(() => {
+          lastCodeRef.current = "";
+        }, 3000);
       }
     },
-    [busy, stopScanner],
+    [busy],
   );
 
   const startScanner = useCallback(async () => {
@@ -107,13 +113,22 @@ export default function ScannerPage() {
 
   useEffect(() => {
     return () => {
+      if (cooldownRef.current) clearTimeout(cooldownRef.current);
       stopScanner();
     };
   }, [stopScanner]);
 
+  // Some com o resultado automaticamente para liberar a proxima leitura,
+  // mantendo a camera sempre ligada.
+  useEffect(() => {
+    if (!result) return;
+    const t = setTimeout(() => setResult(null), 4000);
+    return () => clearTimeout(t);
+  }, [result]);
+
   function reset() {
     setResult(null);
-    startScanner();
+    lastCodeRef.current = "";
   }
 
   return (
@@ -123,12 +138,9 @@ export default function ScannerPage() {
         <h1>Leitor de brindes</h1>
       </div>
 
-      {/* O container da camera precisa estar SEMPRE montado no DOM.
-          Escondemos apenas quando ha um resultado na tela. */}
-      <div
-        id="reader"
-        style={{ display: result ? "none" : "block" }}
-      />
+      {/* A camera fica SEMPRE montada e visivel para leitura continua.
+          O resultado aparece como um cartao sobreposto. */}
+      <div id="reader" />
 
       {!scanning && !result && (
         <>
@@ -143,10 +155,12 @@ export default function ScannerPage() {
         </>
       )}
 
-      {scanning && !result && (
+      {scanning && (
         <>
           <div className="spacer-14" />
-          <p style={{ opacity: 0.85 }}>Aponte a camera para o QR Code...</p>
+          <p style={{ opacity: 0.85 }}>
+            {busy ? "Processando leitura..." : "Aponte a camera para o QR Code..."}
+          </p>
           <button
             className="link-btn"
             style={{ color: "#fff" }}
@@ -214,8 +228,11 @@ export default function ScannerPage() {
           )}
 
           <div className="spacer-14" />
+          <p style={{ opacity: 0.7, fontSize: 14 }}>
+            Pode escanear o proximo QR Code direto, sem clicar em nada.
+          </p>
           <button className="btn btn--primary" onClick={reset}>
-            Ler proximo
+            Fechar
           </button>
         </div>
       )}
