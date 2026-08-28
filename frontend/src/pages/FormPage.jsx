@@ -350,32 +350,6 @@ export default function FormPage() {
           {/* ---------- ETAPA 3 ---------- */}
           {step === 3 && (
             <>
-              <label className="consent" htmlFor="lgpdConsent">
-                <input
-                  id="lgpdConsent"
-                  type="checkbox"
-                  checked={form.lgpdConsent}
-                  onChange={(e) => update("lgpdConsent", e.target.checked)}
-                  required
-                />
-                <span>
-                  Autorizo expressamente receber comunicações de marketing da
-                  Opella Healthcare Brasil por e-mail, SMS e Whatsapp e estou
-                  ciente que poderei revogar essa autorização a qualquer momento
-                  selecionando &quot;unsubscribe&quot; nas referidas comunicações. Para
-                  mais detalhes sobre como Opella Healthcare Brasil trata seus
-                  dados pessoais, você pode acessar o{" "}
-                  <a
-                    href="https://www.opella.com/en/privacy-center"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Aviso de Privacidade Opella para profissionais de saúde
-                  </a>
-                  . <span className="req">*</span>
-                </span>
-              </label>
-
               <div className="field">
                 <label>
                   Quais são os seus canais de contato de preferência? (marque
@@ -422,6 +396,32 @@ export default function FormPage() {
                   <span>Extremamente relevante</span>
                 </div>
               </div>
+
+              <label className="consent" htmlFor="lgpdConsent">
+                <input
+                  id="lgpdConsent"
+                  type="checkbox"
+                  checked={form.lgpdConsent}
+                  onChange={(e) => update("lgpdConsent", e.target.checked)}
+                  required
+                />
+                <span>
+                  Autorizo expressamente receber comunicações de marketing da
+                  Opella Healthcare Brasil por e-mail, SMS e Whatsapp e estou
+                  ciente que poderei revogar essa autorização a qualquer momento
+                  selecionando &quot;unsubscribe&quot; nas referidas comunicações. Para
+                  mais detalhes sobre como Opella Healthcare Brasil trata seus
+                  dados pessoais, você pode acessar o{" "}
+                  <a
+                    href="https://www.opella.com/en/privacy-center"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Aviso de Privacidade Opella para profissionais de saúde
+                  </a>
+                  . <span className="req">*</span>
+                </span>
+              </label>
             </>
           )}
 
