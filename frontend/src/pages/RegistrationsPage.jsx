@@ -15,6 +15,7 @@ const COLUMNS = [
   { key: "crf", label: "CRF" },
   { key: "crfUf", label: "UF do CRF" },
   { key: "aceiteComunicacao", label: "Aceite comunicacao" },
+  { key: "lgpdConsent", label: "Aceite LGPD" },
   { key: "canaisContato", label: "Canais de contato" },
   { key: "nps", label: "NPS" },
   { key: "redeemed", label: "Brinde retirado" },
@@ -33,7 +34,11 @@ function formatDate(value) {
 function cellValue(row, key) {
   const v = row[key];
   if (key === "canaisContato") return Array.isArray(v) ? v.join(", ") : "";
-  if (key === "farmaceuticoFormado" || key === "aceiteComunicacao")
+  if (
+    key === "farmaceuticoFormado" ||
+    key === "aceiteComunicacao" ||
+    key === "lgpdConsent"
+  )
     return v ? "Sim" : "Nao";
   if (key === "redeemed") return v ? "Sim" : "Nao";
   if (key === "redeemedAt" || key === "createdAt") return formatDate(v);

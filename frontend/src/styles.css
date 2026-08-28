@@ -154,6 +154,10 @@ body {
   color: var(--muted);
   line-height: 1.45;
 }
+.consent a {
+  color: var(--opella-deep);
+  font-weight: 700;
+}
 
 .btn {
   width: 100%;

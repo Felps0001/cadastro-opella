@@ -29,7 +29,7 @@ const initialForm = {
   crf: "",
   crfUf: "",
   // Etapa 3 - Declaracao de aceite
-  aceiteComunicacao: "", // "sim" | "nao"
+  lgpdConsent: false,
   canaisContato: [],
   nps: "", // 0..10
 };
@@ -78,7 +78,8 @@ export default function FormPage() {
         return "Informe o Estado/UF do seu CRF.";
     }
     if (current === 3) {
-      if (!form.aceiteComunicacao) return "Selecione a declaração de aceite.";
+      if (!form.lgpdConsent)
+        return "Você precisa autorizar o recebimento de comunicações para continuar.";
       if (form.canaisContato.length === 0)
         return "Selecione ao menos um canal de contato.";
       if (form.nps === "") return "Selecione uma nota de 0 a 10.";
@@ -116,7 +117,7 @@ export default function FormPage() {
       farmaceuticoFormado: isFarmaceutico,
       crf: isFarmaceutico ? form.crf : "",
       crfUf: isFarmaceutico ? form.crfUf : "",
-      aceiteComunicacao: form.aceiteComunicacao === "sim",
+      lgpdConsent: form.lgpdConsent,
       canaisContato: form.canaisContato,
       nps: form.nps === "" ? null : Number(form.nps),
     };
@@ -349,30 +350,31 @@ export default function FormPage() {
           {/* ---------- ETAPA 3 ---------- */}
           {step === 3 && (
             <>
-              <div className="field">
-                <label>
-                  Autorizo receber comunicações de marketing da Opella
-                  Healthcare Brasil por e-mail, SMS e Whatsapp, podendo revogar a
-                  qualquer momento. <span className="req">*</span>
-                </label>
-                <div className="options options--col">
-                  {[
-                    { v: "sim", l: "Aceito receber comunicações da Opella" },
-                    { v: "nao", l: "Não aceito receber comunicações da Opella" },
-                  ].map((op) => (
-                    <button
-                      type="button"
-                      key={op.v}
-                      className={`option ${
-                        form.aceiteComunicacao === op.v ? "is-selected" : ""
-                      }`}
-                      onClick={() => update("aceiteComunicacao", op.v)}
-                    >
-                      {op.l}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <label className="consent" htmlFor="lgpdConsent">
+                <input
+                  id="lgpdConsent"
+                  type="checkbox"
+                  checked={form.lgpdConsent}
+                  onChange={(e) => update("lgpdConsent", e.target.checked)}
+                  required
+                />
+                <span>
+                  Autorizo expressamente receber comunicações de marketing da
+                  Opella Healthcare Brasil por e-mail, SMS e Whatsapp e estou
+                  ciente que poderei revogar essa autorização a qualquer momento
+                  selecionando &quot;unsubscribe&quot; nas referidas comunicações. Para
+                  mais detalhes sobre como Opella Healthcare Brasil trata seus
+                  dados pessoais, você pode acessar o{" "}
+                  <a
+                    href="https://www.opella.com/en/privacy-center"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Aviso de Privacidade Opella para profissionais de saúde
+                  </a>
+                  . <span className="req">*</span>
+                </span>
+              </label>
 
               <div className="field">
                 <label>

@@ -40,6 +40,7 @@ router.get("/registrations", requireStaff, async (req, res) => {
         crf: r.crf || "",
         crfUf: r.crfUf || "",
         aceiteComunicacao: Boolean(r.aceiteComunicacao),
+        lgpdConsent: Boolean(r.lgpdConsent),
         canaisContato: Array.isArray(r.canaisContato) ? r.canaisContato : [],
         nps: r.nps ?? null,
         redeemed: Boolean(r.redeemed),

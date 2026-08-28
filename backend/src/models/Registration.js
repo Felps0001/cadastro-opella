@@ -71,6 +71,10 @@ const registrationSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    lgpdConsent: {
+      type: Boolean,
+      required: true,
+    },
     // Canais de contato de preferencia (E-mail, Whatsapp, SMS)
     canaisContato: {
       type: [String],

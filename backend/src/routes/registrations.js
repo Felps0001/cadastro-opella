@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
       farmaceuticoFormado = false,
       crf = "",
       crfUf = "",
-      aceiteComunicacao = false,
+      lgpdConsent = false,
       canaisContato = [],
       nps = null,
     } = req.body || {};
@@ -43,6 +43,9 @@ router.post("/", async (req, res) => {
     }
     if (!telefone || telefone.replace(/\D/g, "").length < 10) {
       return res.status(400).json({ error: "Telefone invalido. Informe DDD + numero." });
+    }
+    if (lgpdConsent !== true) {
+      return res.status(400).json({ error: "O aceite LGPD e obrigatorio." });
     }
 
     // Normaliza NPS
@@ -66,14 +69,15 @@ router.post("/", async (req, res) => {
       nome: String(nome).trim(),
       email: String(email).trim().toLowerCase(),
       telefone: String(telefone).trim(),
-      consent: Boolean(consent) || Boolean(aceiteComunicacao),
+      consent: true,
       localTrabalho: String(localTrabalho).trim(),
       codigoLoja: String(codigoLoja).trim(),
       atribuicao: String(atribuicao).trim(),
       farmaceuticoFormado: Boolean(farmaceuticoFormado),
       crf: String(crf).trim(),
       crfUf: String(crfUf).trim().toUpperCase(),
-      aceiteComunicacao: Boolean(aceiteComunicacao),
+      aceiteComunicacao: true,
+      lgpdConsent: true,
       canaisContato: Array.isArray(canaisContato)
         ? canaisContato.map((c) => String(c).trim()).filter(Boolean)
         : [],
