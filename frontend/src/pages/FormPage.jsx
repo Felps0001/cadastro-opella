@@ -29,6 +29,7 @@ const initialForm = {
   crf: "",
   crfUf: "",
   // Etapa 3 - Declaracao de aceite
+  aceiteComunicacao: "", // "sim" | "nao"
   lgpdConsent: false,
   canaisContato: [],
   nps: "", // 0..10
@@ -78,6 +79,7 @@ export default function FormPage() {
         return "Informe o Estado/UF do seu CRF.";
     }
     if (current === 3) {
+      if (!form.aceiteComunicacao) return "Selecione a declaração de aceite.";
       if (!form.lgpdConsent)
         return "Você precisa autorizar o recebimento de comunicações para continuar.";
       if (form.canaisContato.length === 0)
@@ -117,6 +119,7 @@ export default function FormPage() {
       farmaceuticoFormado: isFarmaceutico,
       crf: isFarmaceutico ? form.crf : "",
       crfUf: isFarmaceutico ? form.crfUf : "",
+      aceiteComunicacao: form.aceiteComunicacao === "sim",
       lgpdConsent: form.lgpdConsent,
       canaisContato: form.canaisContato,
       nps: form.nps === "" ? null : Number(form.nps),
@@ -350,6 +353,31 @@ export default function FormPage() {
           {/* ---------- ETAPA 3 ---------- */}
           {step === 3 && (
             <>
+              <div className="field">
+                <label>
+                  Autorizo receber comunicações de marketing da Opella
+                  Healthcare Brasil por e-mail, SMS e Whatsapp, podendo revogar a
+                  qualquer momento. <span className="req">*</span>
+                </label>
+                <div className="options options--col">
+                  {[
+                    { v: "sim", l: "Aceito receber comunicações da Opella" },
+                    { v: "nao", l: "Não aceito receber comunicações da Opella" },
+                  ].map((op) => (
+                    <button
+                      type="button"
+                      key={op.v}
+                      className={`option ${
+                        form.aceiteComunicacao === op.v ? "is-selected" : ""
+                      }`}
+                      onClick={() => update("aceiteComunicacao", op.v)}
+                    >
+                      {op.l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="field">
                 <label>
                   Quais são os seus canais de contato de preferência? (marque
