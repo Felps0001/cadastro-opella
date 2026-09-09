@@ -22,6 +22,7 @@ const initialForm = {
   email: "",
   telefone: "",
   // Etapa 2 - Local de trabalho
+  redeTrabalho: "",
   localTrabalho: "", // "Ponto de Venda" | "Escritório"
   codigoLoja: "",
   atribuicao: "",
@@ -32,7 +33,6 @@ const initialForm = {
   aceiteComunicacao: "", // "sim" | "nao"
   lgpdConsent: false,
   canaisContato: [],
-  nps: "", // 0..10
 };
 
 export default function FormPage() {
@@ -69,6 +69,7 @@ export default function FormPage() {
         return "Informe um telefone válido com DDD.";
     }
     if (current === 2) {
+      if (!form.redeTrabalho.trim()) return "Informe a rede em que você trabalha.";
       if (!form.localTrabalho) return "Selecione onde você trabalha.";
       if (!form.codigoLoja.trim()) return "Informe o código/nº da loja/filial.";
       if (!form.atribuicao) return "Selecione a sua atribuição.";
@@ -113,6 +114,7 @@ export default function FormPage() {
       nome: form.nome,
       email: form.email,
       telefone: form.telefone,
+      redeTrabalho: form.redeTrabalho,
       localTrabalho: form.localTrabalho,
       codigoLoja: form.codigoLoja,
       atribuicao: form.atribuicao,
@@ -122,7 +124,6 @@ export default function FormPage() {
       aceiteComunicacao: form.aceiteComunicacao === "sim",
       lgpdConsent: form.lgpdConsent,
       canaisContato: form.canaisContato,
-      nps: form.nps === "" ? null : Number(form.nps),
     };
 
     setLoading(true);
@@ -226,6 +227,20 @@ export default function FormPage() {
           {/* ---------- ETAPA 2 ---------- */}
           {step === 2 && (
             <>
+              <div className="field">
+                <label htmlFor="redeTrabalho">
+                  Qual rede você trabalha? <span className="req">*</span>
+                </label>
+                <input
+                  id="redeTrabalho"
+                  type="text"
+                  placeholder="Informe a rede"
+                  value={form.redeTrabalho}
+                  onChange={(e) => update("redeTrabalho", e.target.value)}
+                  required
+                />
+              </div>
+
               <div className="field">
                 <label>
                   Você trabalha no Ponto de Venda ou no Escritório?{" "}
@@ -396,32 +411,6 @@ export default function FormPage() {
                       {op}
                     </button>
                   ))}
-                </div>
-              </div>
-
-              <div className="field">
-                <label>
-                  De 0 a 10, o quanto a presença da Opella neste evento foi
-                  relevante para a sua prática profissional?{" "}
-                  <span className="req">*</span>
-                </label>
-                <div className="nps">
-                  {Array.from({ length: 11 }, (_, i) => i).map((n) => (
-                    <button
-                      type="button"
-                      key={n}
-                      className={`nps__item ${
-                        String(form.nps) === String(n) ? "is-selected" : ""
-                      }`}
-                      onClick={() => update("nps", n)}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-                <div className="nps__legend">
-                  <span>Nada relevante</span>
-                  <span>Extremamente relevante</span>
                 </div>
               </div>
 
