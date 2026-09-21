@@ -156,8 +156,8 @@ export default function FormPage() {
           <Logo variant="light" />
           <h1 className="hero__tagline">Cadastro Opella</h1>
           <p className="hero__sub">
-            <strong>DIA DO FARMACÊUTICO</strong>
-            <br />
+            {/* <strong>DIA DO FARMACÊUTICO</strong> */}
+            {/* <br /> */}
             Preencha seus dados e receba seu QR Code para retirar o brinde.
           </p>
         </div>
