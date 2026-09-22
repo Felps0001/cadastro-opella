@@ -8,6 +8,7 @@ const COLUMNS = [
   { key: "nome", label: "Nome" },
   { key: "email", label: "E-mail" },
   { key: "telefone", label: "Telefone" },
+  { key: "tipoFormulario", label: "Formulário" },
   { key: "redeTrabalho", label: "Rede de trabalho" },
   { key: "localTrabalho", label: "Local de trabalho" },
   { key: "codigoLoja", label: "Codigo/Loja" },
@@ -15,9 +16,11 @@ const COLUMNS = [
   { key: "farmaceuticoFormado", label: "Farmaceutico formado" },
   { key: "crf", label: "CRF" },
   { key: "crfUf", label: "UF do CRF" },
+  { key: "crm", label: "CRM" },
   { key: "aceiteComunicacao", label: "Aceite comunicacao" },
   { key: "lgpdConsent", label: "Aceite LGPD" },
   { key: "canaisContato", label: "Canais de contato" },
+  { key: "nps", label: "NPS" },
   { key: "redeemed", label: "Brinde retirado" },
   { key: "redeemedAt", label: "Retirado em" },
   { key: "createdAt", label: "Cadastrado em" },
@@ -33,6 +36,7 @@ function formatDate(value) {
 // Formata o valor de uma celula para exibicao/exportacao
 function cellValue(row, key) {
   const v = row[key];
+  if (key === "tipoFormulario") return v === "medico" ? "Médico" : "Farmacêutico";
   if (key === "canaisContato") return Array.isArray(v) ? v.join(", ") : "";
   if (
     key === "farmaceuticoFormado" ||
@@ -100,6 +104,7 @@ export default function RegistrationsPage() {
         r.nome,
         r.email,
         r.telefone,
+        r.tipoFormulario,
         r.redeTrabalho,
         r.codigoLoja,
         r.atribuicao,

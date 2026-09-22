@@ -30,6 +30,11 @@ const registrationSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    tipoFormulario: {
+      type: String,
+      enum: ["farmaceutico", "medico"],
+      default: "farmaceutico",
+    },
     // --- Secao 2: Local de trabalho ---
     redeTrabalho: {
       type: String,
@@ -70,6 +75,11 @@ const registrationSchema = new mongoose.Schema(
       uppercase: true,
       default: "",
     },
+    crm: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     // --- Secao 3: Declaracao de aceite ---
     // Autoriza receber comunicacoes de marketing (Q10)
     aceiteComunicacao: {
@@ -84,6 +94,12 @@ const registrationSchema = new mongoose.Schema(
     canaisContato: {
       type: [String],
       default: [],
+    },
+    nps: {
+      type: Number,
+      min: 0,
+      max: 10,
+      default: null,
     },
     // Controle de retirada do brinde
     redeemed: {

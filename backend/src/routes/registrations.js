@@ -27,6 +27,7 @@ router.post("/", async (req, res) => {
       email = "",
       telefone = "",
       consent = false,
+      tipoFormulario = "farmaceutico",
       redeTrabalho = "",
       localTrabalho = "",
       codigoLoja = "",
@@ -34,9 +35,11 @@ router.post("/", async (req, res) => {
       farmaceuticoFormado = false,
       crf = "",
       crfUf = "",
+      crm = "",
       aceiteComunicacao = false,
       lgpdConsent = false,
       canaisContato = [],
+      nps = null,
     } = req.body || {};
 
     if (!email || !isValidEmail(email)) {
@@ -48,6 +51,9 @@ router.post("/", async (req, res) => {
     if (lgpdConsent !== true) {
       return res.status(400).json({ error: "O aceite LGPD e obrigatorio." });
     }
+
+    const tipoFormularioValue = tipoFormulario === "medico" ? "medico" : "farmaceutico";
+    const npsValue = Number(nps);
 
     // Garante codigo unico
     let code = generateCode();
@@ -64,6 +70,7 @@ router.post("/", async (req, res) => {
       email: String(email).trim().toLowerCase(),
       telefone: String(telefone).trim(),
       consent: Boolean(consent) || Boolean(aceiteComunicacao),
+      tipoFormulario: tipoFormularioValue,
       redeTrabalho: String(redeTrabalho).trim(),
       localTrabalho: String(localTrabalho).trim(),
       codigoLoja: String(codigoLoja).trim(),
@@ -71,11 +78,15 @@ router.post("/", async (req, res) => {
       farmaceuticoFormado: Boolean(farmaceuticoFormado),
       crf: String(crf).trim(),
       crfUf: String(crfUf).trim().toUpperCase(),
+      crm: String(crm).trim(),
       aceiteComunicacao: Boolean(aceiteComunicacao),
       lgpdConsent: true,
       canaisContato: Array.isArray(canaisContato)
         ? canaisContato.map((c) => String(c).trim()).filter(Boolean)
         : [],
+      nps: Number.isInteger(npsValue) && npsValue >= 0 && npsValue <= 10
+        ? npsValue
+        : null,
     });
 
     // Conteudo do QR: link para a pagina de validacao (funciona com qualquer leitor)

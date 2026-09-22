@@ -18,6 +18,12 @@ const ATRIBUICOES = [
   "Gerente de Loja",
   "Operador",
 ];
+const ATRIBUICOES_MEDICO = [
+  "Farmacêutico",
+  "Balconista",
+  "Gerente de Loja",
+  "Médico",
+];
 const CANAIS = ["E-mail", "Whatsapp", "SMS"];
 const TOTAL_STEPS = 3;
 
@@ -34,13 +40,15 @@ const initialForm = {
   farmaceuticoFormado: "", // "sim" | "nao"
   crf: "",
   crfUf: "",
+  crm: "",
   // Etapa 3 - Declaracao de aceite
   aceiteComunicacao: "", // "sim" | "nao"
   lgpdConsent: false,
   canaisContato: [],
+  nps: "",
 };
 
-export default function FormPage() {
+export default function FormPage({ tipoFormulario = "farmaceutico" }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialForm);
@@ -64,6 +72,7 @@ export default function FormPage() {
   }
 
   const isFarmaceutico = form.farmaceuticoFormado === "sim";
+  const isMedico = tipoFormulario === "medico";
 
   function validateStep(current) {
     if (current === 1) {
@@ -74,15 +83,18 @@ export default function FormPage() {
         return "Informe um telefone válido com DDD.";
     }
     if (current === 2) {
-      if (!form.redeTrabalho.trim())
+      if (!isMedico && !form.redeTrabalho.trim())
         return "Informe a rede em que você trabalha.";
       if (!form.localTrabalho) return "Selecione onde você trabalha.";
-      if (!form.codigoLoja.trim()) return "Informe o código/nº da loja/filial.";
+      if (!isMedico && !form.codigoLoja.trim())
+        return "Informe o código/nº da loja/filial.";
       if (!form.atribuicao) return "Selecione a sua atribuição.";
-      if (!form.farmaceuticoFormado)
+      if (isMedico && !form.crm.trim()) return "Informe o seu CRM.";
+      if (!isMedico && !form.farmaceuticoFormado)
         return "Informe se você é farmacêutico(a) formado(a).";
-      if (isFarmaceutico && !form.crf.trim()) return "Informe o seu CRF.";
-      if (isFarmaceutico && !form.crfUf.trim())
+      if (!isMedico && isFarmaceutico && !form.crf.trim())
+        return "Informe o seu CRF.";
+      if (!isMedico && isFarmaceutico && !form.crfUf.trim())
         return "Informe o Estado/UF do seu CRF.";
     }
     if (current === 3) {
@@ -91,7 +103,8 @@ export default function FormPage() {
         return "Você precisa autorizar o recebimento de comunicações para continuar.";
       if (form.canaisContato.length === 0)
         return "Selecione ao menos um canal de contato.";
-      if (form.nps === "") return "Selecione uma nota de 0 a 10.";
+      if (isMedico && form.nps === "")
+        return "Selecione uma nota de 0 a 10.";
     }
     return "";
   }
@@ -117,19 +130,22 @@ export default function FormPage() {
     setError("");
 
     const payload = {
+      tipoFormulario,
       nome: form.nome,
       email: form.email,
       telefone: form.telefone,
-      redeTrabalho: form.redeTrabalho,
+      redeTrabalho: isMedico ? "" : form.redeTrabalho,
       localTrabalho: form.localTrabalho,
-      codigoLoja: form.codigoLoja,
+      codigoLoja: isMedico ? "" : form.codigoLoja,
       atribuicao: form.atribuicao,
-      farmaceuticoFormado: isFarmaceutico,
-      crf: isFarmaceutico ? form.crf : "",
-      crfUf: isFarmaceutico ? form.crfUf : "",
+      farmaceuticoFormado: !isMedico && isFarmaceutico,
+      crf: !isMedico && isFarmaceutico ? form.crf : "",
+      crfUf: !isMedico && isFarmaceutico ? form.crfUf : "",
+      crm: isMedico ? form.crm : "",
       aceiteComunicacao: form.aceiteComunicacao === "sim",
       lgpdConsent: form.lgpdConsent,
       canaisContato: form.canaisContato,
+      nps: isMedico ? Number(form.nps) : null,
     };
 
     setLoading(true);
@@ -236,7 +252,8 @@ export default function FormPage() {
           {/* ---------- ETAPA 2 ---------- */}
           {step === 2 && (
             <>
-              <div className="field">
+              {!isMedico && (
+                <div className="field">
                 <label htmlFor="redeTrabalho">
                   Qual rede você trabalha? <span className="req">*</span>
                 </label>
@@ -249,14 +266,15 @@ export default function FormPage() {
                   required
                 />
               </div>
+              )}
 
               <div className="field">
                 <label>
-                  Você trabalha no Ponto de Venda ou no Escritório?{" "}
+                  Você trabalha no Ponto de Venda ou no {isMedico ? "Consultório" : "Escritório"}?{" "}
                   <span className="req">*</span>
                 </label>
                 <div className="options">
-                  {["Ponto de Venda", "Escritório"].map((op) => (
+                  {["Ponto de Venda", isMedico ? "Consultório" : "Escritório"].map((op) => (
                     <button
                       type="button"
                       key={op}
@@ -271,7 +289,8 @@ export default function FormPage() {
                 </div>
               </div>
 
-              <div className="field">
+              {!isMedico && (
+                <div className="field">
                 <label htmlFor="codigoLoja">
                   Qual é o Código/Nº da Loja/Filial que você trabalha?{" "}
                   <span className="req">*</span>
@@ -285,6 +304,7 @@ export default function FormPage() {
                   onChange={(e) => update("codigoLoja", e.target.value)}
                 />
               </div>
+              )}
 
               <div className="field">
                 <label>
@@ -292,7 +312,7 @@ export default function FormPage() {
                   <span className="req">*</span>
                 </label>
                 <div className="options options--col">
-                  {ATRIBUICOES.map((op) => (
+                  {(isMedico ? ATRIBUICOES_MEDICO : ATRIBUICOES).map((op) => (
                     <button
                       type="button"
                       key={op}
@@ -307,7 +327,27 @@ export default function FormPage() {
                 </div>
               </div>
 
-              <div className="field">
+              {isMedico && (
+                <div className="field">
+                  <label htmlFor="crm">
+                    CRM <span className="req">*</span>
+                  </label>
+                  <input
+                    id="crm"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="Somente números"
+                    value={form.crm}
+                    onChange={(e) =>
+                      update("crm", e.target.value.replace(/\D/g, ""))
+                    }
+                    required
+                  />
+                </div>
+              )}
+
+              {!isMedico && (
+                <div className="field">
                 <label>
                   Você é um(a) farmacêutico(a) formado(a)?{" "}
                   <span className="req">*</span>
@@ -330,8 +370,9 @@ export default function FormPage() {
                   ))}
                 </div>
               </div>
+              )}
 
-              {isFarmaceutico && (
+              {!isMedico && isFarmaceutico && (
                 <>
                   <div className="field">
                     <label htmlFor="crf">
@@ -427,6 +468,34 @@ export default function FormPage() {
                   ))}
                 </div>
               </div>
+
+              {isMedico && (
+                <div className="field">
+                  <label>
+                    De 0 a 10, o quanto a presença da Opella neste evento foi
+                    relevante para a sua prática profissional?{" "}
+                    <span className="req">*</span>
+                  </label>
+                  <div className="nps">
+                    {Array.from({ length: 11 }, (_, i) => i).map((n) => (
+                      <button
+                        type="button"
+                        key={n}
+                        className={`nps__item ${
+                          String(form.nps) === String(n) ? "is-selected" : ""
+                        }`}
+                        onClick={() => update("nps", n)}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="nps__legend">
+                    <span>Nada relevante</span>
+                    <span>Extremamente relevante</span>
+                  </div>
+                </div>
+              )}
 
               <label className="consent" htmlFor="lgpdConsent">
                 <input

@@ -10,7 +10,9 @@ export default function App() {
   return (
     <Routes>
       {/* Formulario (celular) */}
-      <Route path="/" element={<FormPage />} />
+      <Route path="/" element={<Navigate to="/farmaceutico" replace />} />
+      <Route path="/farmaceutico" element={<FormPage />} />
+      <Route path="/medico" element={<FormPage tipoFormulario="medico" />} />
       {/* Tela de sucesso com o QR Code gerado */}
       <Route path="/sucesso/:code" element={<SuccessPage />} />
       {/* Pagina publica ao escanear o link do QR */}
