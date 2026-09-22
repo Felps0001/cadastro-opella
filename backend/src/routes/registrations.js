@@ -27,7 +27,6 @@ router.post("/", async (req, res) => {
       email = "",
       telefone = "",
       consent = false,
-      redeTrabalho = "",
       localTrabalho = "",
       codigoLoja = "",
       atribuicao = "",
@@ -37,6 +36,7 @@ router.post("/", async (req, res) => {
       aceiteComunicacao = false,
       lgpdConsent = false,
       canaisContato = [],
+      nps = null,
     } = req.body || {};
 
     if (!email || !isValidEmail(email)) {
@@ -47,6 +47,13 @@ router.post("/", async (req, res) => {
     }
     if (lgpdConsent !== true) {
       return res.status(400).json({ error: "O aceite LGPD e obrigatorio." });
+    }
+
+    // Normaliza NPS
+    let npsValue = null;
+    if (nps !== null && nps !== "" && nps !== undefined) {
+      const n = Number(nps);
+      if (!Number.isNaN(n) && n >= 0 && n <= 10) npsValue = n;
     }
 
     // Garante codigo unico
@@ -64,7 +71,6 @@ router.post("/", async (req, res) => {
       email: String(email).trim().toLowerCase(),
       telefone: String(telefone).trim(),
       consent: Boolean(consent) || Boolean(aceiteComunicacao),
-      redeTrabalho: String(redeTrabalho).trim(),
       localTrabalho: String(localTrabalho).trim(),
       codigoLoja: String(codigoLoja).trim(),
       atribuicao: String(atribuicao).trim(),
@@ -76,6 +82,7 @@ router.post("/", async (req, res) => {
       canaisContato: Array.isArray(canaisContato)
         ? canaisContato.map((c) => String(c).trim()).filter(Boolean)
         : [],
+      nps: npsValue,
     });
 
     // Conteudo do QR: link para a pagina de validacao (funciona com qualquer leitor)

@@ -31,11 +31,6 @@ const registrationSchema = new mongoose.Schema(
       trim: true,
     },
     // --- Secao 2: Local de trabalho ---
-    redeTrabalho: {
-      type: String,
-      trim: true,
-      default: "",
-    },
     // "Ponto de Venda" | "Escritorio"
     localTrabalho: {
       type: String,
@@ -84,6 +79,13 @@ const registrationSchema = new mongoose.Schema(
     canaisContato: {
       type: [String],
       default: [],
+    },
+    // NPS 0 a 10
+    nps: {
+      type: Number,
+      min: 0,
+      max: 10,
+      default: null,
     },
     // Controle de retirada do brinde
     redeemed: {
