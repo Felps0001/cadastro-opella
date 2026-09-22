@@ -12,12 +12,7 @@ function maskPhone(value) {
   return d.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
 }
 
-const ATRIBUICOES = [
-  "Farmacêutico",
-  "Balconista",
-  "Gerente de Loja",
-  "Operador",
-];
+const ATRIBUICOES = ["Farmacêutico", "Balconista", "Gerente de Loja", "Operador"];
 const CANAIS = ["E-mail", "Whatsapp", "SMS"];
 const TOTAL_STEPS = 3;
 
@@ -155,7 +150,8 @@ export default function FormPage() {
           <Logo variant="light" />
           <h1 className="hero__tagline">Cadastro Opella</h1>
           <p className="hero__sub">
-            Preencha seus dados e receba seu QR Code para retirar o brinde.
+            Abrafarma RJ — preencha seus dados e receba seu QR Code para retirar
+            o brinde.
           </p>
         </div>
       </header>
@@ -221,9 +217,7 @@ export default function FormPage() {
                   autoComplete="tel"
                   placeholder="(21) 90000-0000"
                   value={form.telefone}
-                  onChange={(e) =>
-                    update("telefone", maskPhone(e.target.value))
-                  }
+                  onChange={(e) => update("telefone", maskPhone(e.target.value))}
                   required
                 />
               </div>
@@ -361,9 +355,7 @@ export default function FormPage() {
                       onChange={(e) =>
                         update(
                           "crfUf",
-                          e.target.value
-                            .replace(/[^a-zA-Z]/g, "")
-                            .toUpperCase(),
+                          e.target.value.replace(/[^a-zA-Z]/g, "").toUpperCase()
                         )
                       }
                     />
@@ -379,16 +371,13 @@ export default function FormPage() {
               <div className="field">
                 <label>
                   Autorizo receber comunicações de marketing da Opella
-                  Healthcare Brasil por e-mail, SMS e Whatsapp, podendo revogar
-                  a qualquer momento. <span className="req">*</span>
+                  Healthcare Brasil por e-mail, SMS e Whatsapp, podendo revogar a
+                  qualquer momento. <span className="req">*</span>
                 </label>
                 <div className="options options--col">
                   {[
                     { v: "sim", l: "Aceito receber comunicações da Opella" },
-                    {
-                      v: "nao",
-                      l: "Não aceito receber comunicações da Opella",
-                    },
+                    { v: "nao", l: "Não aceito receber comunicações da Opella" },
                   ].map((op) => (
                     <button
                       type="button"
@@ -437,9 +426,9 @@ export default function FormPage() {
                   Autorizo expressamente receber comunicações de marketing da
                   Opella Healthcare Brasil por e-mail, SMS e Whatsapp e estou
                   ciente que poderei revogar essa autorização a qualquer momento
-                  selecionando &quot;unsubscribe&quot; nas referidas
-                  comunicações. Para mais detalhes sobre como Opella Healthcare
-                  Brasil trata seus dados pessoais, você pode acessar o{" "}
+                  selecionando &quot;unsubscribe&quot; nas referidas comunicações. Para
+                  mais detalhes sobre como Opella Healthcare Brasil trata seus
+                  dados pessoais, você pode acessar o{" "}
                   <a
                     href="https://www.opella.com/en/privacy-center"
                     target="_blank"
@@ -484,7 +473,7 @@ export default function FormPage() {
 
         <p className="footer-note">
           Ao enviar, seus dados serão utilizados exclusivamente para a ação da
-          Opella.
+          Opella na Abrafarma RJ.
         </p>
       </main>
     </div>
