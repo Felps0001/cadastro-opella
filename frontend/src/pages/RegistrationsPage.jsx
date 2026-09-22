@@ -8,6 +8,7 @@ const COLUMNS = [
   { key: "nome", label: "Nome" },
   { key: "email", label: "E-mail" },
   { key: "telefone", label: "Telefone" },
+  { key: "redeTrabalho", label: "Rede de trabalho" },
   { key: "localTrabalho", label: "Local de trabalho" },
   { key: "codigoLoja", label: "Codigo/Loja" },
   { key: "atribuicao", label: "Atribuicao" },
@@ -17,7 +18,6 @@ const COLUMNS = [
   { key: "aceiteComunicacao", label: "Aceite comunicacao" },
   { key: "lgpdConsent", label: "Aceite LGPD" },
   { key: "canaisContato", label: "Canais de contato" },
-  { key: "nps", label: "NPS" },
   { key: "redeemed", label: "Brinde retirado" },
   { key: "redeemedAt", label: "Retirado em" },
   { key: "createdAt", label: "Cadastrado em" },
@@ -95,7 +95,15 @@ export default function RegistrationsPage() {
     const q = query.trim().toLowerCase();
     if (!q) return rows;
     return rows.filter((r) =>
-      [r.code, r.nome, r.email, r.telefone, r.codigoLoja, r.atribuicao]
+      [
+        r.code,
+        r.nome,
+        r.email,
+        r.telefone,
+        r.redeTrabalho,
+        r.codigoLoja,
+        r.atribuicao,
+      ]
         .filter(Boolean)
         .some((f) => String(f).toLowerCase().includes(q))
     );
