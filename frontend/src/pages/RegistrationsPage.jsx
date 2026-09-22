@@ -58,7 +58,7 @@ function csvEscape(value) {
 function buildCsv(rows) {
   const header = COLUMNS.map((c) => csvEscape(c.label)).join(";");
   const lines = rows.map((row) =>
-    COLUMNS.map((c) => csvEscape(cellValue(row, c.key))).join(";")
+    COLUMNS.map((c) => csvEscape(cellValue(row, c.key))).join(";"),
   );
   // BOM para acentuacao correta no Excel
   return "\uFEFF" + [header, ...lines].join("\r\n");
@@ -105,7 +105,7 @@ export default function RegistrationsPage() {
         r.atribuicao,
       ]
         .filter(Boolean)
-        .some((f) => String(f).toLowerCase().includes(q))
+        .some((f) => String(f).toLowerCase().includes(q)),
     );
   }, [rows, query]);
 

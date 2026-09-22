@@ -74,7 +74,8 @@ export default function FormPage() {
         return "Informe um telefone válido com DDD.";
     }
     if (current === 2) {
-      if (!form.redeTrabalho.trim()) return "Informe a rede em que você trabalha.";
+      if (!form.redeTrabalho.trim())
+        return "Informe a rede em que você trabalha.";
       if (!form.localTrabalho) return "Selecione onde você trabalha.";
       if (!form.codigoLoja.trim()) return "Informe o código/nº da loja/filial.";
       if (!form.atribuicao) return "Selecione a sua atribuição.";
@@ -155,6 +156,8 @@ export default function FormPage() {
           <Logo variant="light" />
           <h1 className="hero__tagline">Cadastro Opella</h1>
           <p className="hero__sub">
+            <strong>DIA DO FARMACÊUTICO</strong>
+            <br />
             Preencha seus dados e receba seu QR Code para retirar o brinde.
           </p>
         </div>
