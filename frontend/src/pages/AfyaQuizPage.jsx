@@ -250,7 +250,7 @@ export default function AfyaQuizPage() {
       <header className="hero afya-hero">
         <div className="container">
           <Logo variant="light" />
-          <p className="afya-kicker">AFYA</p>
+          <p className="afya-kicker">AFYA SUMMIT</p>
           <h1 className="hero__tagline">Quiz Pré e Pós-Simpósio</h1>
           <p className="hero__sub">Selecione o momento e registre suas respostas.</p>
         </div>

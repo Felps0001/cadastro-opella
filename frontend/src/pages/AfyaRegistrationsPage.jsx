@@ -96,7 +96,7 @@ export default function AfyaRegistrationsPage() {
       setError(
         requestError.status === 401
           ? "Token inválido. Verifique o VITE_STAFF_TOKEN no .env."
-          : requestError.message || "Não foi possível carregar os cadastros Afya.",
+          : requestError.message || "Não foi possível carregar os cadastros Afya Summit.",
       );
     } finally {
       setLoading(false);
@@ -136,7 +136,7 @@ export default function AfyaRegistrationsPage() {
     <div className="admin-page">
       <div className="admin-head container">
         <Logo variant="light" />
-        <h1 className="admin-title">Cadastros Afya</h1>
+        <h1 className="admin-title">Cadastros Afya Summit</h1>
         <p className="admin-sub">
           {loading
             ? "Carregando..."
@@ -167,7 +167,7 @@ export default function AfyaRegistrationsPage() {
       <div className="admin-body container">
         {error && <div className="error-msg">{error}</div>}
         {!error && !loading && filtered.length === 0 && (
-          <p className="admin-empty">Nenhum cadastro Afya encontrado.</p>
+          <p className="admin-empty">Nenhum cadastro Afya Summit encontrado.</p>
         )}
         {!error && filtered.length > 0 && (
           <div className="table-wrap">

@@ -86,7 +86,7 @@ router.get("/afya-quiz", requireStaff, async (_req, res) => {
     );
   } catch (err) {
     console.error("[staff] erro ao listar respostas Afya:", err);
-    return res.status(500).json({ error: "Erro ao listar respostas Afya." });
+    return res.status(500).json({ error: "Erro ao listar respostas Afya Summit." });
   }
 });
 
