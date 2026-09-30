@@ -15,7 +15,6 @@ router.post("/", async (req, res) => {
       notaClareza = null,
       notaRelevancia = null,
       notaDidatica = null,
-      notaEvento = null,
     } = req.body || {};
 
     if (!['pre', 'pos'].includes(momento)) {
@@ -42,8 +41,7 @@ router.post("/", async (req, res) => {
     const clarity = parseRating(notaClareza);
     const relevance = parseRating(notaRelevancia);
     const didactics = parseRating(notaDidatica);
-    const overallEvent = parseRating(notaEvento);
-    const ratings = [clarity, relevance, didactics, overallEvent];
+    const ratings = [clarity, relevance, didactics];
     if (
       momento === "pos" &&
       ratings.some(
@@ -51,7 +49,7 @@ router.post("/", async (req, res) => {
           !Number.isInteger(rating) || rating < 0 || rating > 10,
       )
     ) {
-      return res.status(400).json({ error: "Selecione as quatro notas de 0 a 10." });
+      return res.status(400).json({ error: "Selecione as tres notas de 0 a 10." });
     }
 
     await AfyaQuizResponse.create({
@@ -64,7 +62,6 @@ router.post("/", async (req, res) => {
       notaClareza: momento === "pos" ? clarity : null,
       notaRelevancia: momento === "pos" ? relevance : null,
       notaDidatica: momento === "pos" ? didactics : null,
-      notaEvento: momento === "pos" ? overallEvent : null,
     });
 
     return res.status(201).json({ ok: true });

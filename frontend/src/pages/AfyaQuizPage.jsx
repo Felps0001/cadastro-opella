@@ -2,77 +2,79 @@ import { useState } from "react";
 import Logo from "../components/Logo.jsx";
 import { createAfyaQuizResponse } from "../api.js";
 
-const QUESTIONS = [
+const PRE_QUESTIONS = [
   {
     question:
-      "Em caso de febre que necessita de tratamento antipirético, qual diferencial torna a dipirona (Novalgina®) uma escolha preferencial em relação aos outros antitérmicos amplamente utilizados?",
+      "Durante os primeiros anos após a menopausa, a perda óssea acelerada ocorre principalmente em decorrência de qual mecanismo fisiopatológico?",
     options: [
       {
         id: "A",
-        text: "Atua promovendo redução inicial da temperatura, sem diferenças na manutenção do efeito, apenas para febre baixa ao longo do tempo.",
+        text: "Aumento da produção de osteoprotegerina (OPG), reduzindo a atividade osteoclástica.",
       },
       {
         id: "B",
-        text: "Apresenta eficácia semelhante aos demais antitérmicos, sendo escolhida principalmente para casos de febre moderada e febre alta e em casos de dores leves.",
+        text: "Redução do estradiol, com aumento da atividade de RANKL e da reabsorção óssea.",
       },
       {
         id: "C",
-        text: "Proporciona maior controle da febre, manutenção da temperatura normalizada por mais tempo e elevada eficácia, sendo recomendada para todos os níveis de febre e dor.",
+        text: "Diminuição da atividade osteoclástica por ação compensatória do PTH.",
       },
       {
         id: "D",
-        text: "Seu principal diferencial é a posologia de uma gota por quilo para potencializar o controle da febre alta e dores intensas.",
+        text: "Aumento da absorção intestinal de cálcio independente da vitamina D.",
       },
     ],
   },
   {
     question:
-      "Em crianças com rinite alérgica ou urticária que necessitam de tratamento anti-histamínico, qual diferencial torna a fexofenadina (Allegra®) uma escolha preferencial em relação aos anti-histamínicos de 1ª geração?",
+      "Uma mulher de 48 anos, sem queixas gastrointestinais e sem uso de inibidores da bomba de prótons, necessita suplementação de cálcio para complementar sua ingestão alimentar. Qual característica torna o carbonato de cálcio uma opção adequada para essa paciente?",
     options: [
       {
         id: "A",
-        text: "Promove sedação para melhorar o descanso e o controle dos sintomas.",
+        text: "Pode ser utilizado preferencialmente em jejum por não depender da acidez gástrica.",
       },
       {
         id: "B",
-        text: "Apresenta maior penetração no sistema nervoso central, aumentando a eficácia clínica.",
+        text: "Apresenta menor teor de cálcio elementar que o citrato de cálcio.",
       },
       {
         id: "C",
-        text: "Controla os sintomas alérgicos preservando cognição, atenção e desempenho diário por ser verdadeiramente não sedativa e ter mínima penetração cerebral.",
+        text: "Possui elevado teor de cálcio elementar (40%) e boa eficácia quando administrado junto às refeições.",
       },
       {
         id: "D",
-        text: "Possui efeito anticolinérgico mais intenso, contribuindo para o controle da rinorreia.",
+        text: "É o sal de escolha para pacientes bariátricas e usuárias crônicas de IBPs.",
       },
     ],
   },
   {
     question:
-      "Qual das afirmações sobre o uso de probióticos na prevenção da diarreia associada a antibióticos é a mais correta?",
+      "Considerando os dados de consumo de cálcio da população brasileira, qual afirmação é a mais adequada para a prática ginecológica?",
     options: [
       {
         id: "A",
-        text: "Qualquer probiótico pode ser utilizado, pois os efeitos são semelhantes entre as diferentes cepas.",
+        text: "A maioria das mulheres brasileiras atinge a recomendação diária de cálcio apenas pela alimentação.",
       },
       {
         id: "B",
-        text: "O resultado clínico depende exclusivamente da concentração de UFC.",
+        text: "O consumo médio de cálcio no Brasil é suficiente para prevenir a perda óssea associada ao envelhecimento.",
       },
       {
         id: "C",
-        text: "As evidências de eficácia são específicas para determinadas cepas, como B. clausii O/C, SIN, N/R e T, presentes em Enterogermina®.",
+        text: "Como a calcemia geralmente permanece normal, não há necessidade de avaliar a ingestão alimentar de cálcio.",
       },
       {
         id: "D",
-        text: "Combinações com maior número de cepas são sempre superiores às formulações com menos cepas.",
+        text: "A ingestão média de cálcio no Brasil é inferior às recomendações, tornando fundamental investigar a dieta, pois o organismo pode mobilizar cálcio do esqueleto para manter a calcemia.",
       },
     ],
   },
 ];
 
-function shuffleOptions() {
-  return QUESTIONS.map(({ options }) => {
+const POST_QUESTIONS = PRE_QUESTIONS;
+
+function shuffleOptions(questions) {
+  return questions.map(({ options }) => {
     const shuffled = [...options];
     for (let index = shuffled.length - 1; index > 0; index -= 1) {
       const randomIndex = Math.floor(Math.random() * (index + 1));
@@ -120,26 +122,27 @@ export default function AfyaQuizPage() {
   });
   const [identificationComplete, setIdentificationComplete] = useState(false);
   const [answers, setAnswers] = useState(["", "", ""]);
-  const [shuffledOptions, setShuffledOptions] = useState(() => shuffleOptions());
+  const [shuffledOptions, setShuffledOptions] = useState([]);
   const [clarity, setClarity] = useState(null);
   const [relevance, setRelevance] = useState(null);
   const [didactics, setDidactics] = useState(null);
-  const [overallEvent, setOverallEvent] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const questions = momento === "pre" ? PRE_QUESTIONS : POST_QUESTIONS;
 
   function selectMoment(value) {
     setMomento(value);
     setParticipant({ nome: "", crm: "", email: "", campus: "" });
     setIdentificationComplete(false);
     setAnswers(["", "", ""]);
-    setShuffledOptions(shuffleOptions());
+    setShuffledOptions(
+      shuffleOptions(value === "pre" ? PRE_QUESTIONS : POST_QUESTIONS),
+    );
     setClarity(null);
     setRelevance(null);
     setDidactics(null);
-    setOverallEvent(null);
     setCurrentStep(0);
     setError("");
   }
@@ -187,14 +190,14 @@ export default function AfyaQuizPage() {
 
   function nextStep(event) {
     event.preventDefault();
-    if (currentStep < QUESTIONS.length && !answers[currentStep]) {
+    if (currentStep < questions.length && !answers[currentStep]) {
       setError("Selecione uma alternativa para continuar.");
       return;
     }
-    const ratingsByStep = [clarity, relevance, didactics, overallEvent];
+    const ratingsByStep = [clarity, relevance, didactics];
     if (
-      currentStep >= QUESTIONS.length &&
-      ratingsByStep[currentStep - QUESTIONS.length] === null
+      currentStep >= questions.length &&
+      ratingsByStep[currentStep - questions.length] === null
     ) {
       setError("Selecione uma nota de 0 a 10 para continuar.");
       return;
@@ -210,7 +213,7 @@ export default function AfyaQuizPage() {
     }
     if (
       momento === "pos" &&
-      [clarity, relevance, didactics, overallEvent].some((rating) => rating === null)
+      [clarity, relevance, didactics].some((rating) => rating === null)
     ) {
       setError("Selecione uma nota de 0 a 10 em todas as avaliações.");
       return;
@@ -229,7 +232,6 @@ export default function AfyaQuizPage() {
         notaClareza: momento === "pos" ? clarity : null,
         notaRelevancia: momento === "pos" ? relevance : null,
         notaDidatica: momento === "pos" ? didactics : null,
-        notaEvento: momento === "pos" ? overallEvent : null,
       });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -240,10 +242,10 @@ export default function AfyaQuizPage() {
     }
   }
 
-  const totalSteps = momento === "pos" ? 7 : 3;
+  const totalSteps = momento === "pos" ? 6 : 3;
   const isLastStep = currentStep === totalSteps - 1;
   const progress = momento ? ((currentStep + 1) / totalSteps) * 100 : 0;
-  const currentQuestion = QUESTIONS[currentStep];
+  const currentQuestion = questions[currentStep];
 
   return (
     <div className="page afya-page">
@@ -364,7 +366,7 @@ export default function AfyaQuizPage() {
                   </div>
                 </div>
 
-                {currentStep < QUESTIONS.length && (
+                {currentStep < questions.length && (
                   <fieldset className="quiz-question" key={currentQuestion.question}>
                     <legend className="quiz-question__title">
                       <span>{currentStep + 1}</span>
@@ -389,7 +391,7 @@ export default function AfyaQuizPage() {
                   </fieldset>
                 )}
 
-                {momento === "pos" && currentStep >= QUESTIONS.length && (
+                {momento === "pos" && currentStep >= questions.length && (
                   <section className="quiz-evaluation" aria-label="Avaliação do simpósio">
                     {currentStep === 3 && (
                     <Rating
@@ -407,16 +409,9 @@ export default function AfyaQuizPage() {
                     )}
                     {currentStep === 5 && (
                     <Rating
-                      label="6. O que você achou da didática dos palestrantes?"
+                      label="6. Como você avalia a aula no geral?"
                       value={didactics}
                       onChange={setDidactics}
-                    />
-                    )}
-                    {currentStep === 6 && (
-                    <Rating
-                      label="7. Como você avalia o evento no geral?"
-                      value={overallEvent}
-                      onChange={setOverallEvent}
                     />
                     )}
                   </section>

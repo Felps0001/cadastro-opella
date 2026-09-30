@@ -2,24 +2,24 @@ import { useEffect, useMemo, useState } from "react";
 import Logo from "../components/Logo.jsx";
 import { staffListAfyaQuizResponses } from "../api.js";
 
-const ANSWERS = [
+const PRE_ANSWERS = [
   {
-    A: "Atua promovendo redução inicial da temperatura, sem diferenças na manutenção do efeito, apenas para febre baixa ao longo do tempo.",
-    B: "Apresenta eficácia semelhante aos demais antitérmicos, sendo escolhida principalmente para casos de febre moderada e febre alta e em casos de dores leves.",
-    C: "Proporciona maior controle da febre, manutenção da temperatura normalizada por mais tempo e elevada eficácia, sendo recomendada para todos os níveis de febre e dor.",
-    D: "Seu principal diferencial é a posologia de uma gota por quilo para potencializar o controle da febre alta e dores intensas.",
+    A: "Aumento da produção de osteoprotegerina (OPG), reduzindo a atividade osteoclástica.",
+    B: "Redução do estradiol, com aumento da atividade de RANKL e da reabsorção óssea.",
+    C: "Diminuição da atividade osteoclástica por ação compensatória do PTH.",
+    D: "Aumento da absorção intestinal de cálcio independente da vitamina D.",
   },
   {
-    A: "Promove sedação para melhorar o descanso e o controle dos sintomas.",
-    B: "Apresenta maior penetração no sistema nervoso central, aumentando a eficácia clínica.",
-    C: "Controla os sintomas alérgicos preservando cognição, atenção e desempenho diário por ser verdadeiramente não sedativa e ter mínima penetração cerebral.",
-    D: "Possui efeito anticolinérgico mais intenso, contribuindo para o controle da rinorreia.",
+    A: "Pode ser utilizado preferencialmente em jejum por não depender da acidez gástrica.",
+    B: "Apresenta menor teor de cálcio elementar que o citrato de cálcio.",
+    C: "Possui elevado teor de cálcio elementar (40%) e boa eficácia quando administrado junto às refeições.",
+    D: "É o sal de escolha para pacientes bariátricas e usuárias crônicas de IBPs.",
   },
   {
-    A: "Qualquer probiótico pode ser utilizado, pois os efeitos são semelhantes entre as diferentes cepas.",
-    B: "O resultado clínico depende exclusivamente da concentração de UFC.",
-    C: "As evidências de eficácia são específicas para determinadas cepas, como B. clausii O/C, SIN, N/R e T, presentes em Enterogermina®.",
-    D: "Combinações com maior número de cepas são sempre superiores às formulações com menos cepas.",
+    A: "A maioria das mulheres brasileiras atinge a recomendação diária de cálcio apenas pela alimentação.",
+    B: "O consumo médio de cálcio no Brasil é suficiente para prevenir a perda óssea associada ao envelhecimento.",
+    C: "Como a calcemia geralmente permanece normal, não há necessidade de avaliar a ingestão alimentar de cálcio.",
+    D: "A ingestão média de cálcio no Brasil é inferior às recomendações, tornando fundamental investigar a dieta, pois o organismo pode mobilizar cálcio do esqueleto para manter a calcemia.",
   },
 ];
 
@@ -35,8 +35,7 @@ const COLUMNS = [
   { key: "score", label: "Acertos" },
   { key: "notaClareza", label: "Clareza" },
   { key: "notaRelevancia", label: "Relevância" },
-  { key: "notaDidatica", label: "Didática" },
-  { key: "notaEvento", label: "Evento geral" },
+  { key: "notaDidatica", label: "Aula geral" },
   { key: "createdAt", label: "Enviado em" },
 ];
 
@@ -48,7 +47,7 @@ function formatDate(value) {
 
 function answerText(row, index) {
   const answer = row.respostas?.[index];
-  return ANSWERS[index]?.[answer] || "";
+  return PRE_ANSWERS[index]?.[answer] || "";
 }
 
 function cellValue(row, column) {
@@ -59,7 +58,10 @@ function cellValue(row, column) {
     return row.momento === "pos" ? "Pós-simpósio" : "Pré-simpósio";
   }
   if (column.key === "score") {
-    const score = (row.respostas || []).filter((answer) => answer === "C").length;
+    const correctAnswers = ["B", "C", "D"];
+    const score = (row.respostas || []).filter(
+      (answer, index) => answer === correctAnswers[index],
+    ).length;
     return `${score}/3`;
   }
   if (column.key === "createdAt") return formatDate(row.createdAt);
