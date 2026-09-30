@@ -259,8 +259,8 @@ export default function AfyaQuizPage() {
       <header className="hero afya-hero">
         <div className="container">
           <Logo variant="light" />
-          <p className="afya-kicker">AFYA SUMMIT</p>
-          <h1 className="hero__tagline">Quiz Pré e Pós-Simpósio</h1>
+          <p className="afya-kicker">AFYA</p>
+          <h1 className="hero__tagline">Quiz Pré e Pós-Aula</h1>
           <p className="hero__sub">Selecione o momento e registre suas respostas.</p>
         </div>
       </header>
@@ -270,7 +270,7 @@ export default function AfyaQuizPage() {
           <div className="card center-col quiz-success" role="status">
             <span className="quiz-success__mark">✓</span>
             <h2>Resposta enviada</h2>
-            <p>Obrigado por participar do simpósio.</p>
+            <p>Obrigado por participar da aula.</p>
           </div>
         ) : (
           <form className="card afya-quiz" onSubmit={handleFormSubmit} noValidate>
@@ -304,7 +304,7 @@ export default function AfyaQuizPage() {
                   Identificação
                 </h2>
                 <p className="quiz-identification__intro">
-                  Preencha seus dados para acessar o questionário {momento === "pre" ? "pré" : "pós"}-simpósio.
+                  Preencha seus dados para acessar o questionário {momento === "pre" ? "pré" : "pós"}-aula.
                 </p>
 
                 <div className="field">
@@ -388,7 +388,7 @@ export default function AfyaQuizPage() {
               <>
                 <div className="quiz-progress" aria-label={`Etapa ${currentStep + 1} de ${totalSteps}`}>
                   <div className="quiz-progress__meta">
-                    <span>Questionário {momento === "pre" ? "pré" : "pós"}-simpósio</span>
+                    <span>Questionário {momento === "pre" ? "pré" : "pós"}-aula</span>
                     <span>{currentStep + 1} de {totalSteps}</span>
                   </div>
                   <div className="quiz-progress__track">
@@ -425,7 +425,7 @@ export default function AfyaQuizPage() {
                 )}
 
                 {momento === "pos" && currentStep >= questions.length && (
-                  <section className="quiz-evaluation" aria-label="Avaliação do simpósio">
+                  <section className="quiz-evaluation" aria-label="Avaliação da aula">
                     {currentStep === 3 && (
                     <Rating
                       label="4. Como você avalia a clareza e objetividade da apresentação?"

@@ -19,7 +19,7 @@ router.post("/", async (req, res) => {
     } = req.body || {};
 
     if (!['pre', 'pos'].includes(momento)) {
-      return res.status(400).json({ error: "Selecione Pre ou Pos-simposio." });
+      return res.status(400).json({ error: "Selecione Pre-aula ou Pos-aula." });
     }
 
     if (![nome, crm, email, campus].every((value) => String(value).trim())) {
