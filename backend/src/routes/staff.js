@@ -76,6 +76,7 @@ router.get("/afya-quiz", requireStaff, async (_req, res) => {
         crm: response.crm || "",
         email: response.email || "",
         campus: response.campus || "",
+        lgpdConsent: Boolean(response.lgpdConsent),
         respostas: Array.isArray(response.respostas) ? response.respostas : [],
         notaClareza: response.notaClareza ?? null,
         notaRelevancia: response.notaRelevancia ?? null,

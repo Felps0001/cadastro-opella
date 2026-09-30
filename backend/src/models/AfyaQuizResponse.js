@@ -28,6 +28,10 @@ const afyaQuizResponseSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    lgpdConsent: {
+      type: Boolean,
+      required: true,
+    },
     respostas: {
       type: [String],
       required: true,

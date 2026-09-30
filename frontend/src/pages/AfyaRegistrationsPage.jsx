@@ -28,6 +28,7 @@ const COLUMNS = [
   { key: "crm", label: "CRM" },
   { key: "email", label: "E-mail" },
   { key: "campus", label: "Campus" },
+  { key: "lgpdConsent", label: "Aceite LGPD" },
   { key: "momento", label: "Questionário" },
   { key: "answer0", label: "Resposta 1", answerIndex: 0 },
   { key: "answer1", label: "Resposta 2", answerIndex: 1 },
@@ -57,6 +58,7 @@ function cellValue(row, column) {
   if (column.key === "momento") {
     return row.momento === "pos" ? "Pós-simpósio" : "Pré-simpósio";
   }
+  if (column.key === "lgpdConsent") return row.lgpdConsent ? "Sim" : "Não";
   if (column.key === "score") {
     const correctAnswers = ["B", "C", "D"];
     const score = (row.respostas || []).filter(

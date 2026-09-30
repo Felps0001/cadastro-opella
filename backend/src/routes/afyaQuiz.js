@@ -11,6 +11,7 @@ router.post("/", async (req, res) => {
       crm = "",
       email = "",
       campus = "",
+      lgpdConsent = false,
       respostas,
       notaClareza = null,
       notaRelevancia = null,
@@ -26,6 +27,9 @@ router.post("/", async (req, res) => {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim())) {
       return res.status(400).json({ error: "E-mail invalido." });
+    }
+    if (lgpdConsent !== true) {
+      return res.status(400).json({ error: "O aceite LGPD e obrigatorio." });
     }
 
     if (
@@ -58,6 +62,7 @@ router.post("/", async (req, res) => {
       crm: String(crm).trim(),
       email: String(email).trim().toLowerCase(),
       campus: String(campus).trim(),
+      lgpdConsent: true,
       respostas,
       notaClareza: momento === "pos" ? clarity : null,
       notaRelevancia: momento === "pos" ? relevance : null,

@@ -120,6 +120,7 @@ export default function AfyaQuizPage() {
     email: "",
     campus: "",
   });
+  const [lgpdConsent, setLgpdConsent] = useState(false);
   const [identificationComplete, setIdentificationComplete] = useState(false);
   const [answers, setAnswers] = useState(["", "", ""]);
   const [shuffledOptions, setShuffledOptions] = useState([]);
@@ -135,6 +136,7 @@ export default function AfyaQuizPage() {
   function selectMoment(value) {
     setMomento(value);
     setParticipant({ nome: "", crm: "", email: "", campus: "" });
+    setLgpdConsent(false);
     setIdentificationComplete(false);
     setAnswers(["", "", ""]);
     setShuffledOptions(
@@ -158,6 +160,10 @@ export default function AfyaQuizPage() {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(participant.email)) {
       setError("Informe um e-mail válido.");
+      return;
+    }
+    if (!lgpdConsent) {
+      setError("Você precisa autorizar o recebimento de comunicações para continuar.");
       return;
     }
     setError("");
@@ -228,6 +234,7 @@ export default function AfyaQuizPage() {
         crm: participant.crm.trim(),
         email: participant.email.trim(),
         campus: participant.campus.trim(),
+        lgpdConsent,
         respostas: answers,
         notaClareza: momento === "pos" ? clarity : null,
         notaRelevancia: momento === "pos" ? relevance : null,
@@ -343,6 +350,32 @@ export default function AfyaQuizPage() {
                     required
                   />
                 </div>
+
+                <label className="consent" htmlFor="afya-lgpd-consent">
+                  <input
+                    id="afya-lgpd-consent"
+                    type="checkbox"
+                    checked={lgpdConsent}
+                    onChange={(event) => setLgpdConsent(event.target.checked)}
+                    required
+                  />
+                  <span>
+                    Autorizo expressamente receber comunicações de marketing da
+                    Opella Healthcare Brasil por e-mail, SMS e Whatsapp e estou
+                    ciente que poderei revogar essa autorização a qualquer momento
+                    selecionando &quot;unsubscribe&quot; nas referidas
+                    comunicações. Para mais detalhes sobre como Opella Healthcare
+                    Brasil trata seus dados pessoais, você pode acessar o{" "}
+                    <a
+                      href="https://www.opella.com/en/privacy-center"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Aviso de Privacidade Opella para profissionais de saúde
+                    </a>
+                    . <span className="req">*</span>
+                  </span>
+                </label>
 
                 {error && <div className="error-msg">{error}</div>}
                 <button type="submit" className="btn btn--primary">
