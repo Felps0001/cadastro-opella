@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { Registration } from "../models/Registration.js";
+import { AfyaQuizResponse } from "../models/AfyaQuizResponse.js";
 
 const router = Router();
 
@@ -54,6 +55,38 @@ router.get("/registrations", requireStaff, async (req, res) => {
   } catch (err) {
     console.error("[staff] erro ao listar cadastros:", err);
     return res.status(500).json({ error: "Erro ao listar cadastros." });
+  }
+});
+
+/**
+ * GET /api/staff/afya-quiz
+ * Lista os cadastros e respostas dos questionarios Afya.
+ */
+router.get("/afya-quiz", requireStaff, async (_req, res) => {
+  try {
+    const responses = await AfyaQuizResponse.find({})
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.json(
+      responses.map((response) => ({
+        id: String(response._id),
+        momento: response.momento,
+        nome: response.nome || "",
+        crm: response.crm || "",
+        email: response.email || "",
+        campus: response.campus || "",
+        respostas: Array.isArray(response.respostas) ? response.respostas : [],
+        notaClareza: response.notaClareza ?? null,
+        notaRelevancia: response.notaRelevancia ?? null,
+        notaDidatica: response.notaDidatica ?? null,
+        notaEvento: response.notaEvento ?? null,
+        createdAt: response.createdAt || null,
+      })),
+    );
+  } catch (err) {
+    console.error("[staff] erro ao listar respostas Afya:", err);
+    return res.status(500).json({ error: "Erro ao listar respostas Afya." });
   }
 });
 
