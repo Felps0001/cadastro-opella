@@ -285,7 +285,7 @@ export default function AfyaQuizPage() {
                   aria-pressed={momento === "pre"}
                   onClick={() => selectMoment("pre")}
                 >
-                  Pré-simpósio
+                  Pré-aula
                 </button>
                 <button
                   type="button"
@@ -293,7 +293,7 @@ export default function AfyaQuizPage() {
                   aria-pressed={momento === "pos"}
                   onClick={() => selectMoment("pos")}
                 >
-                  Pós-simpósio
+                  Pós-aula
                 </button>
               </div>
             </section>
