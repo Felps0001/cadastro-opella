@@ -44,6 +44,22 @@ export async function createAfyaQuizResponse(payload) {
   return handle(res);
 }
 
+export async function createMinasRegistration(payload) {
+  const res = await fetch(`${API_URL}/api/minas-registrations`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return handle(res);
+}
+
+export async function getMinasRegistration(id) {
+  const res = await fetch(
+    `${API_URL}/api/minas-registrations/${encodeURIComponent(id)}`,
+  );
+  return handle(res);
+}
+
 // ---- Equipe (tablet) ----
 export async function staffLookup(code) {
   const res = await fetch(
@@ -70,6 +86,13 @@ export async function staffListRegistrations() {
 
 export async function staffListAfyaQuizResponses() {
   const res = await fetch(`${API_URL}/api/staff/afya-quiz`, {
+    headers: { "x-staff-token": STAFF_TOKEN },
+  });
+  return handle(res);
+}
+
+export async function staffListMinasRegistrations() {
+  const res = await fetch(`${API_URL}/api/staff/minas-registrations`, {
     headers: { "x-staff-token": STAFF_TOKEN },
   });
   return handle(res);

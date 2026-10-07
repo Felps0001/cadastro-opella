@@ -7,6 +7,9 @@ import ScannerDevicePage from "./pages/ScannerDevicePage.jsx";
 import RegistrationsPage from "./pages/RegistrationsPage.jsx";
 import AfyaQuizPage from "./pages/AfyaQuizPage.jsx";
 import AfyaRegistrationsPage from "./pages/AfyaRegistrationsPage.jsx";
+import MinasFormPage from "./pages/MinasFormPage.jsx";
+import MinasSuccessPage from "./pages/MinasSuccessPage.jsx";
+import MinasRegistrationsPage from "./pages/MinasRegistrationsPage.jsx";
 
 export default function App() {
   return (
@@ -16,6 +19,8 @@ export default function App() {
       <Route path="/farmaceutico" element={<FormPage />} />
       <Route path="/medico" element={<FormPage tipoFormulario="medico" />} />
       <Route path="/afya" element={<AfyaQuizPage />} />
+      <Route path="/form-minas" element={<MinasFormPage />} />
+      <Route path="/form-minas/sucesso/:id" element={<MinasSuccessPage />} />
       {/* Tela de sucesso com o QR Code gerado */}
       <Route path="/sucesso/:code" element={<SuccessPage />} />
       {/* Pagina publica ao escanear o link do QR */}
@@ -27,6 +32,7 @@ export default function App() {
       {/* Gestao dos cadastros + exportacao CSV (equipe) */}
       <Route path="/cadastros" element={<RegistrationsPage />} />
       <Route path="/afya-cadastros" element={<AfyaRegistrationsPage />} />
+      <Route path="/form-minas-cadastros" element={<MinasRegistrationsPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

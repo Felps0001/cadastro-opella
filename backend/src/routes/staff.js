@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { Registration } from "../models/Registration.js";
 import { AfyaQuizResponse } from "../models/AfyaQuizResponse.js";
+import { MinasRegistration } from "../models/MinasRegistration.js";
 
 const router = Router();
 
@@ -92,6 +93,43 @@ router.get("/afya-quiz", requireStaff, async (_req, res) => {
 });
 
 /**
+ * GET /api/staff/minas-registrations
+ * Lista os cadastros do formulario SBP e o uso dos dois QR Codes.
+ */
+router.get("/minas-registrations", requireStaff, async (_req, res) => {
+  try {
+    const registrations = await MinasRegistration.find({})
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.json(
+      registrations.map((registration) => ({
+        id: String(registration._id),
+        nome: registration.nome || "",
+        crm: registration.crm || "",
+        estudante: Boolean(registration.estudante),
+        especialidade: registration.especialidade || "",
+        segundaEspecialidade: registration.segundaEspecialidade || "",
+        email: registration.email || "",
+        whatsapp: registration.whatsapp || "",
+        aceiteComunicacao: Boolean(registration.aceiteComunicacao),
+        aceiteTermos: Boolean(registration.aceiteTermos),
+        giftCode: registration.giftCode || "",
+        giftRedeemed: Boolean(registration.giftRedeemed),
+        giftRedeemedAt: registration.giftRedeemedAt || null,
+        photoCode: registration.photoCode || "",
+        photoRedeemed: Boolean(registration.photoRedeemed),
+        photoRedeemedAt: registration.photoRedeemedAt || null,
+        createdAt: registration.createdAt || null,
+      })),
+    );
+  } catch (err) {
+    console.error("[staff] erro ao listar cadastros SBP:", err);
+    return res.status(500).json({ error: "Erro ao listar cadastros SBP." });
+  }
+});
+
+/**
  * GET /api/staff/lookup/:code
  * Consulta o cadastro para a tela do tablet (mostra dados + status)
  */
@@ -100,18 +138,42 @@ router.get("/lookup/:code", requireStaff, async (req, res) => {
     const code = String(req.params.code).trim().toUpperCase();
     const registration = await Registration.findOne({ code });
 
-    if (!registration) {
+    if (registration) {
+      return res.json({
+        code: registration.code,
+        nome: registration.nome,
+        email: registration.email,
+        telefone: registration.telefone,
+        purpose: "gift",
+        purposeLabel: "Brinde",
+        redeemed: registration.redeemed,
+        redeemedAt: registration.redeemedAt,
+        createdAt: registration.createdAt,
+      });
+    }
+
+    const minasRegistration = await MinasRegistration.findOne({
+      $or: [{ giftCode: code }, { photoCode: code }],
+    });
+    if (!minasRegistration) {
       return res.status(404).json({ error: "QR Code nao encontrado." });
     }
 
+    const isPhoto = minasRegistration.photoCode === code;
     return res.json({
-      code: registration.code,
-      nome: registration.nome,
-      email: registration.email,
-      telefone: registration.telefone,
-      redeemed: registration.redeemed,
-      redeemedAt: registration.redeemedAt,
-      createdAt: registration.createdAt,
+      code,
+      nome: minasRegistration.nome,
+      email: minasRegistration.email,
+      telefone: minasRegistration.whatsapp,
+      purpose: isPhoto ? "photo" : "gift",
+      purposeLabel: isPhoto ? "Foto" : "Brinde",
+      redeemed: isPhoto
+        ? minasRegistration.photoRedeemed
+        : minasRegistration.giftRedeemed,
+      redeemedAt: isPhoto
+        ? minasRegistration.photoRedeemedAt
+        : minasRegistration.giftRedeemedAt,
+      createdAt: minasRegistration.createdAt,
     });
   } catch (err) {
     console.error("[staff] erro no lookup:", err);
@@ -128,29 +190,74 @@ router.post("/redeem/:code", requireStaff, async (req, res) => {
     const code = String(req.params.code).trim().toUpperCase();
     const registration = await Registration.findOne({ code });
 
-    if (!registration) {
-      return res.status(404).json({ error: "QR Code nao encontrado." });
-    }
+    if (registration) {
+      if (registration.redeemed) {
+        return res.status(409).json({
+          error: "Brinde ja retirado.",
+          code: registration.code,
+          nome: registration.nome,
+          purpose: "gift",
+          purposeLabel: "Brinde",
+          redeemedAt: registration.redeemedAt,
+          redeemed: true,
+        });
+      }
 
-    if (registration.redeemed) {
-      return res.status(409).json({
-        error: "Brinde ja retirado.",
+      registration.redeemed = true;
+      registration.redeemedAt = new Date();
+      await registration.save();
+
+      return res.json({
+        ok: true,
         code: registration.code,
         nome: registration.nome,
+        purpose: "gift",
+        purposeLabel: "Brinde",
         redeemedAt: registration.redeemedAt,
         redeemed: true,
       });
     }
 
-    registration.redeemed = true;
-    registration.redeemedAt = new Date();
-    await registration.save();
+    const minasRegistration = await MinasRegistration.findOne({
+      $or: [{ giftCode: code }, { photoCode: code }],
+    }).lean();
+    if (!minasRegistration) {
+      return res.status(404).json({ error: "QR Code nao encontrado." });
+    }
+
+    const isPhoto = minasRegistration.photoCode === code;
+    const redeemedField = isPhoto ? "photoRedeemed" : "giftRedeemed";
+    const redeemedAtField = isPhoto ? "photoRedeemedAt" : "giftRedeemedAt";
+    const purpose = isPhoto ? "photo" : "gift";
+    const purposeLabel = isPhoto ? "Foto" : "Brinde";
+
+    const redeemedAt = new Date();
+    const updated = await MinasRegistration.findOneAndUpdate(
+      { _id: minasRegistration._id, [redeemedField]: false },
+      { $set: { [redeemedField]: true, [redeemedAtField]: redeemedAt } },
+      { new: true },
+    );
+
+    if (!updated) {
+      const current = await MinasRegistration.findById(minasRegistration._id).lean();
+      return res.status(409).json({
+        error: `${purposeLabel} ja utilizado.`,
+        code,
+        nome: minasRegistration.nome,
+        purpose,
+        purposeLabel,
+        redeemedAt: current?.[redeemedAtField] || null,
+        redeemed: true,
+      });
+    }
 
     return res.json({
       ok: true,
-      code: registration.code,
-      nome: registration.nome,
-      redeemedAt: registration.redeemedAt,
+      code,
+      nome: updated.nome,
+      purpose,
+      purposeLabel,
+      redeemedAt: updated[redeemedAtField],
       redeemed: true,
     });
   } catch (err) {

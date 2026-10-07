@@ -2,10 +2,10 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Logo from "../components/Logo.jsx";
 import { staffRedeem } from "../api.js";
 
-// Extrai o codigo (OPL-XXXXXXXX) do conteudo lido, seja URL ou texto puro.
+// Extrai os codigos suportados do conteudo lido, seja URL ou texto puro.
 function extractCode(text) {
   if (!text) return "";
-  const match = String(text).match(/OPL-[A-Z0-9]{8}/i);
+  const match = String(text).match(/(?:OPL|BRT|FOT)-[A-Z0-9]{8}/i);
   if (match) return match[0].toUpperCase();
   // Se veio uma URL /validar/CODE
   const parts = String(text).split("/").filter(Boolean);
@@ -85,7 +85,7 @@ export default function ScannerDevicePage() {
     <div className="scanner-page" onClick={focusInput}>
       <div className="scanner-head">
         <Logo variant="light" />
-        <h1>Leitor de brindes (scanner)</h1>
+        <h1>Leitor de benefícios (scanner)</h1>
       </div>
 
       {/* Campo invisivel que recebe a "digitacao" do scanner de dispositivo. */}
@@ -125,11 +125,17 @@ export default function ScannerDevicePage() {
           {result.type === "ok" && (
             <>
               <div className="big-icon">✅</div>
-              <h2>Brinde liberado!</h2>
+              <h2>
+                {result.data.purpose === "photo" ? "Foto liberada!" : "Brinde liberado!"}
+              </h2>
               <div className="spacer-8" />
               <div className="result-row">
                 <span>Nome</span>
                 <span>{result.data.nome || "-"}</span>
+              </div>
+              <div className="result-row">
+                <span>Tipo</span>
+                <span>{result.data.purposeLabel || "Brinde"}</span>
               </div>
               <div className="result-row">
                 <span>Codigo</span>
@@ -147,11 +153,19 @@ export default function ScannerDevicePage() {
           {result.type === "warn" && (
             <>
               <div className="big-icon">⚠️</div>
-              <h2>Brinde ja retirado</h2>
+              <h2>
+                {result.data?.purpose === "photo"
+                  ? "Foto já utilizada"
+                  : "Brinde já retirado"}
+              </h2>
               <div className="spacer-8" />
               <div className="result-row">
                 <span>Nome</span>
                 <span>{result.data?.nome || "-"}</span>
+              </div>
+              <div className="result-row">
+                <span>Tipo</span>
+                <span>{result.data?.purposeLabel || "Brinde"}</span>
               </div>
               <div className="result-row">
                 <span>Codigo</span>

@@ -6,6 +6,7 @@ import { connectDB } from "./config/db.js";
 import registrationsRouter from "./routes/registrations.js";
 import staffRouter from "./routes/staff.js";
 import afyaQuizRouter from "./routes/afyaQuiz.js";
+import minasRegistrationsRouter from "./routes/minasRegistrations.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -48,6 +49,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.use("/api/registrations", registerLimiter, registrationsRouter);
 app.use("/api/afya-quiz", registerLimiter, afyaQuizRouter);
+app.use("/api/minas-registrations", registerLimiter, minasRegistrationsRouter);
 app.use("/api/staff", staffRouter);
 
 // 404
