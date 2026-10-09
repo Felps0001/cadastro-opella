@@ -10,6 +10,7 @@ const COLUMNS = [
   { key: "segundaEspecialidade", label: "2ª especialidade" },
   { key: "email", label: "E-mail" },
   { key: "whatsapp", label: "WhatsApp" },
+  { key: "signatureDataUrl", label: "Assinatura" },
   { key: "aceiteComunicacao", label: "Aceite comunicação" },
   { key: "aceiteTermos", label: "Aceite termos" },
   { key: "giftCode", label: "Código brinde" },
@@ -44,6 +45,7 @@ function cellValue(row, key) {
   if (BOOLEAN_FIELDS.has(key)) return row[key] ? "Sim" : "Não";
   if (STATUS_FIELDS.has(key)) return row[key] ? "Utilizado" : "Disponível";
   if (key === "crm" && row.estudante && !row.crm) return "Estudante";
+  if (key === "signatureDataUrl") return row[key] ? "Presente" : "Sem assinatura";
   const value = row[key];
   return value === null || value === undefined ? "" : String(value);
 }
@@ -178,10 +180,29 @@ export default function MinasRegistrationsPage() {
                               : "admin-status admin-status--available"
                             : column.key === "giftCode" || column.key === "photoCode"
                               ? "admin-code"
+                              : column.key === "signatureDataUrl"
+                              ? "admin-signature"
                               : ""
                         }
                       >
-                        {cellValue(row, column.key)}
+                        {column.key === "signatureDataUrl" && row[column.key] ? (
+                          <img
+                            src={row[column.key]}
+                            alt={`Assinatura de ${row.nome || "participante"}`}
+                            style={{
+                              maxWidth: 120,
+                              maxHeight: 52,
+                              objectFit: "contain",
+                              display: "block",
+                              background: "#fff",
+                              border: "1px solid #dce8dd",
+                              borderRadius: 8,
+                              padding: 4,
+                            }}
+                          />
+                        ) : (
+                          cellValue(row, column.key)
+                        )}
                       </td>
                     ))}
                   </tr>
