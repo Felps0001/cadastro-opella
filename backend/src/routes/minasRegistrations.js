@@ -30,6 +30,7 @@ router.post("/", async (req, res) => {
       segundaEspecialidade = "Não se aplica",
       email = "",
       whatsapp = "",
+      signatureDataUrl = "",
       aceiteComunicacao = false,
       aceiteTermos = false,
     } = req.body || {};
@@ -49,6 +50,9 @@ router.post("/", async (req, res) => {
     if (String(whatsapp).replace(/\D/g, "").length < 10) {
       return res.status(400).json({ error: "WhatsApp invalido." });
     }
+    if (!String(signatureDataUrl).startsWith("data:image/png;base64,")) {
+      return res.status(400).json({ error: "Assinatura obrigatoria antes de receber o QR Code." });
+    }
     if (aceiteComunicacao !== true || aceiteTermos !== true) {
       return res.status(400).json({ error: "Os aceites sao obrigatorios." });
     }
@@ -66,6 +70,7 @@ router.post("/", async (req, res) => {
       segundaEspecialidade: String(segundaEspecialidade).trim() || "Não se aplica",
       email: String(email).trim().toLowerCase(),
       whatsapp: String(whatsapp).trim(),
+      signatureDataUrl: String(signatureDataUrl),
       aceiteComunicacao: true,
       aceiteTermos: true,
       giftCode,
@@ -92,6 +97,7 @@ router.get("/:id", async (req, res) => {
     return res.json({
       id: String(registration._id),
       nome: registration.nome,
+      signatureDataUrl: registration.signatureDataUrl || "",
       giftCode: registration.giftCode,
       photoCode: registration.photoCode,
       giftRedeemed: Boolean(registration.giftRedeemed),

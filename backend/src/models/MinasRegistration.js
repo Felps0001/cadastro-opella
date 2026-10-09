@@ -9,6 +9,7 @@ const minasRegistrationSchema = new mongoose.Schema(
     segundaEspecialidade: { type: String, trim: true, default: "Não se aplica" },
     email: { type: String, required: true, trim: true, lowercase: true },
     whatsapp: { type: String, required: true, trim: true },
+    signatureDataUrl: { type: String, required: true, default: "" },
     aceiteComunicacao: { type: Boolean, required: true },
     aceiteTermos: { type: Boolean, required: true },
     giftCode: { type: String, required: true, unique: true, index: true },

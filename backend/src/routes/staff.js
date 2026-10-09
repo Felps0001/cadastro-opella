@@ -112,6 +112,7 @@ router.get("/minas-registrations", requireStaff, async (_req, res) => {
         segundaEspecialidade: registration.segundaEspecialidade || "",
         email: registration.email || "",
         whatsapp: registration.whatsapp || "",
+        signatureDataUrl: registration.signatureDataUrl || "",
         aceiteComunicacao: Boolean(registration.aceiteComunicacao),
         aceiteTermos: Boolean(registration.aceiteTermos),
         giftCode: registration.giftCode || "",

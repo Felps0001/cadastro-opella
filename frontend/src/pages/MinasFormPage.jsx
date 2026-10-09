@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo.jsx";
 import { createMinasRegistration } from "../api.js";
@@ -25,6 +25,7 @@ const initialForm = {
   segundaEspecialidade: "Não se aplica",
   email: "",
   whatsapp: "",
+  signatureDataUrl: "",
   aceiteComunicacao: false,
   aceiteTermos: false,
 };
@@ -37,6 +38,129 @@ function maskPhone(value) {
     return digits.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
   }
   return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
+}
+
+function SignaturePad({ onChange }) {
+  const canvasRef = useRef(null);
+  const isDrawingRef = useRef(false);
+  const lastPointRef = useRef(null);
+  const hasDrawingRef = useRef(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+
+    const resizeCanvas = () => {
+      const context = canvas.getContext("2d");
+      const ratio = window.devicePixelRatio || 1;
+      const width = canvas.clientWidth || 420;
+      const height = 180;
+
+      canvas.width = Math.max(240, Math.round(width * ratio));
+      canvas.height = Math.round(height * ratio);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      context.lineCap = "round";
+      context.lineJoin = "round";
+      context.lineWidth = 2.5;
+      context.strokeStyle = "#10261a";
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, width, height);
+    };
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, []);
+
+  function getPoint(event) {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  }
+
+  function beginDrawing(event) {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    event.preventDefault();
+    const point = getPoint(event);
+    const context = canvas.getContext("2d");
+
+    isDrawingRef.current = true;
+    hasDrawingRef.current = true;
+    lastPointRef.current = point;
+
+    context.beginPath();
+    context.moveTo(point.x, point.y);
+    context.lineTo(point.x, point.y);
+    context.stroke();
+  }
+
+  function draw(event) {
+    if (!isDrawingRef.current) return;
+
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    const point = getPoint(event);
+
+    context.beginPath();
+    context.moveTo(lastPointRef.current.x, lastPointRef.current.y);
+    context.lineTo(point.x, point.y);
+    context.stroke();
+
+    lastPointRef.current = point;
+  }
+
+  function finishDrawing() {
+    if (!isDrawingRef.current) return;
+
+    isDrawingRef.current = false;
+    lastPointRef.current = null;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    if (hasDrawingRef.current) {
+      onChange(canvas.toDataURL("image/png"));
+      return;
+    }
+
+    onChange("");
+  }
+
+  function clearSignature() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    const width = canvas.clientWidth || 420;
+    const height = 180;
+
+    context.clearRect(0, 0, width, height);
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, width, height);
+    hasDrawingRef.current = false;
+    onChange("");
+  }
+
+  return (
+    <div className="signature-wrap">
+      <canvas
+        className="signature-pad"
+        ref={canvasRef}
+        onPointerDown={beginDrawing}
+        onPointerMove={draw}
+        onPointerUp={finishDrawing}
+        onPointerLeave={finishDrawing}
+        onPointerCancel={finishDrawing}
+      />
+      <button type="button" className="btn btn--ghost signature-clear" onClick={clearSignature}>
+        Limpar assinatura
+      </button>
+    </div>
+  );
 }
 
 export default function MinasFormPage() {
@@ -66,6 +190,9 @@ export default function MinasFormPage() {
     }
     if (form.whatsapp.replace(/\D/g, "").length < 10) {
       return "Informe um WhatsApp válido com DDD.";
+    }
+    if (!form.signatureDataUrl || !form.signatureDataUrl.startsWith("data:image/png;base64,")) {
+      return "Assine abaixo antes de receber o QR Code.";
     }
     if (!form.aceiteComunicacao) {
       return "Autorize o recebimento de comunicações para continuar.";
@@ -196,6 +323,12 @@ export default function MinasFormPage() {
               onChange={(event) => update("whatsapp", maskPhone(event.target.value))}
               required
             />
+          </div>
+
+          <div className="field signature-field">
+            <label htmlFor="minas-assinatura">Assinatura <span className="req">*</span></label>
+            <SignaturePad onChange={(dataUrl) => update("signatureDataUrl", dataUrl)} />
+            <p className="signature-hint">Desenhe sua assinatura abaixo para liberar o QR Code.</p>
           </div>
 
           <label className="consent" htmlFor="minas-comunicacao">
