@@ -16,24 +16,28 @@ const afyaQuizResponseSchema = new mongoose.Schema(
     },
     nome: {
       type: String,
-      required: true,
+      required() { return this.origem === "afya"; },
       trim: true,
+      default: "",
     },
     crm: {
       type: String,
-      required: true,
+      required() { return this.origem === "afya"; },
       trim: true,
+      default: "",
     },
     email: {
       type: String,
-      required: true,
+      required() { return this.origem === "afya"; },
       trim: true,
       lowercase: true,
+      default: "",
     },
     campus: {
       type: String,
-      required: true,
+      required() { return this.origem === "afya"; },
       trim: true,
+      default: "",
     },
     lgpdConsent: {
       type: Boolean,

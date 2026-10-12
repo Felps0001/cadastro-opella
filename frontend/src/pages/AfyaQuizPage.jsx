@@ -113,6 +113,7 @@ function Rating({ label, value, onChange }) {
 }
 
 export default function AfyaQuizPage({ momentoInicial = "" }) {
+  const isDedicatedPage = Boolean(momentoInicial);
   const [momento, setMomento] = useState(momentoInicial);
   const [participant, setParticipant] = useState({
     nome: "",
@@ -121,7 +122,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
     campus: "",
   });
   const [lgpdConsent, setLgpdConsent] = useState(false);
-  const [identificationComplete, setIdentificationComplete] = useState(false);
+  const [identificationComplete, setIdentificationComplete] = useState(isDedicatedPage);
   const [answers, setAnswers] = useState(["", "", ""]);
   const [shuffledOptions, setShuffledOptions] = useState(() =>
     momentoInicial
@@ -135,7 +136,6 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const isDedicatedPage = Boolean(momentoInicial);
   const questions = momento === "pre" ? PRE_QUESTIONS : POST_QUESTIONS;
 
   function selectMoment(value) {
@@ -236,11 +236,11 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
       await createAfyaQuizResponse({
         origem: isDedicatedPage ? "congresso-pediatria" : "afya",
         momento,
-        nome: participant.nome.trim(),
-        crm: participant.crm.trim(),
-        email: participant.email.trim(),
-        campus: participant.campus.trim(),
-        lgpdConsent,
+        nome: isDedicatedPage ? "" : participant.nome.trim(),
+        crm: isDedicatedPage ? "" : participant.crm.trim(),
+        email: isDedicatedPage ? "" : participant.email.trim(),
+        campus: isDedicatedPage ? "" : participant.campus.trim(),
+        lgpdConsent: isDedicatedPage ? false : lgpdConsent,
         respostas: answers,
         notaClareza: momento === "pos" ? clarity : null,
         notaRelevancia: momento === "pos" ? relevance : null,
@@ -273,7 +273,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
           </h1>
           <p className="hero__sub">
             {isDedicatedPage
-              ? `Identifique-se para responder ao questionário ${momento === "pre" ? "pré" : "pós"}-aula.`
+              ? `Responda ao questionário ${momento === "pre" ? "pré" : "pós"}-aula.`
               : "Selecione o momento e registre suas respostas."}
           </p>
         </div>

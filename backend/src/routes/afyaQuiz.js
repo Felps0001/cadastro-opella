@@ -26,14 +26,16 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Selecione Pre-aula ou Pos-aula." });
     }
 
-    if (![nome, crm, email, campus].every((value) => String(value).trim())) {
-      return res.status(400).json({ error: "Preencha todos os dados de identificacao." });
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim())) {
-      return res.status(400).json({ error: "E-mail invalido." });
-    }
-    if (lgpdConsent !== true) {
-      return res.status(400).json({ error: "O aceite LGPD e obrigatorio." });
+    if (origem === "afya") {
+      if (![nome, crm, email, campus].every((value) => String(value).trim())) {
+        return res.status(400).json({ error: "Preencha todos os dados de identificacao." });
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim())) {
+        return res.status(400).json({ error: "E-mail invalido." });
+      }
+      if (lgpdConsent !== true) {
+        return res.status(400).json({ error: "O aceite LGPD e obrigatorio." });
+      }
     }
 
     if (
@@ -67,7 +69,7 @@ router.post("/", async (req, res) => {
       crm: String(crm).trim(),
       email: String(email).trim().toLowerCase(),
       campus: String(campus).trim(),
-      lgpdConsent: true,
+      lgpdConsent: origem === "afya",
       respostas,
       notaClareza: momento === "pos" ? clarity : null,
       notaRelevancia: momento === "pos" ? relevance : null,
