@@ -192,7 +192,7 @@ router.get("/lookup/:code", requireStaff, async (req, res) => {
       telefone: minasRegistration.whatsapp,
       purpose: isPhoto ? "photo" : "gift",
       purposeLabel: isPhoto ? "Foto" : "Brinde",
-      signatureRequired: true,
+      signatureRequired: !isPhoto,
       redeemed: isPhoto
         ? minasRegistration.photoRedeemed
         : minasRegistration.giftRedeemed,
@@ -257,24 +257,23 @@ router.post("/redeem/:code", requireStaff, async (req, res) => {
     const redeemedAtField = isPhoto ? "photoRedeemedAt" : "giftRedeemedAt";
     const purpose = isPhoto ? "photo" : "gift";
     const purposeLabel = isPhoto ? "Foto" : "Brinde";
-    if (
+    if (!isPhoto && (
       !/^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(signatureDataUrl) ||
       signatureDataUrl.length > 500_000
-    ) {
+    )) {
       return res.status(400).json({ error: "A assinatura e obrigatoria para confirmar a retirada." });
     }
-    const signatureField = isPhoto ? "photoSignatureDataUrl" : "giftSignatureDataUrl";
 
     const redeemedAt = new Date();
+    const updateFields = {
+      [redeemedField]: true,
+      [redeemedAtField]: redeemedAt,
+    };
+    if (!isPhoto) updateFields.giftSignatureDataUrl = signatureDataUrl;
+
     const updated = await MinasRegistration.findOneAndUpdate(
       { _id: minasRegistration._id, [redeemedField]: false },
-      {
-        $set: {
-          [redeemedField]: true,
-          [redeemedAtField]: redeemedAt,
-          [signatureField]: signatureDataUrl,
-        },
-      },
+      { $set: updateFields },
       { new: true },
     );
 
