@@ -10,22 +10,10 @@ function loadImage(source) {
   });
 }
 
-function safeFileName(value) {
-  const normalized = value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .toLowerCase();
-  return normalized || "participante";
-}
-
 export default function CongressPhotoPage() {
   const videoRef = useRef(null);
   const fileInputRef = useRef(null);
-  const nameInputRef = useRef(null);
   const streamRef = useRef(null);
-  const [name, setName] = useState("");
   const [photoDataUrl, setPhotoDataUrl] = useState("");
   const [cameraOpen, setCameraOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -129,7 +117,7 @@ export default function CongressPhotoPage() {
   }
 
   async function downloadPoster() {
-    if (!name.trim() || !photoDataUrl) return;
+    if (!photoDataUrl) return;
     setError("");
     setStatus("");
 
@@ -173,7 +161,7 @@ export default function CongressPhotoPage() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `congresso-pediatria-${safeFileName(name)}.png`;
+        link.download = "congresso-pediatria-selfie.png";
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -193,10 +181,6 @@ export default function CongressPhotoPage() {
     setStatus("");
   }
 
-  function goToName() {
-    nameInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
   return (
     <main className="photo-page">
       <header className="photo-page__header">
@@ -208,34 +192,6 @@ export default function CongressPhotoPage() {
       </header>
 
       <div className="photo-page__content">
-        <section className="photo-controls" aria-labelledby="photo-form-title">
-          <h2 id="photo-form-title">Monte seu pôster</h2>
-
-          <div className="field">
-            <label htmlFor="participant-name">Seu nome <span className="req">*</span></label>
-            <input
-              ref={nameInputRef}
-              id="participant-name"
-              type="text"
-              autoComplete="name"
-              maxLength={100}
-              placeholder="Digite seu nome"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              required
-            />
-          </div>
-          <button
-            className="btn btn--primary photo-download"
-            type="button"
-            disabled={!name.trim() || !photoDataUrl}
-            onClick={downloadPoster}
-          >
-            Baixar pôster PNG
-          </button>
-          <p className="photo-privacy">A imagem é montada neste dispositivo e não é enviada ao servidor.</p>
-        </section>
-
         <section className="photo-preview" aria-label="Prévia do pôster">
           <div className="photo-poster">
             {photoDataUrl && (
@@ -259,14 +215,12 @@ export default function CongressPhotoPage() {
             )}
             <img className="photo-poster__mask" src={maskImageUrl} alt="Arte do simpósio do Congresso Brasileiro de Pediatria" />
           </div>
-          {name.trim() && <p className="photo-preview__name">{name.trim()}</p>}
-
           <div className="photo-preview__tools">
             <div className="photo-actions">
               {photoDataUrl ? (
                 <>
-                  <button className="btn btn--primary" type="button" onClick={goToName}>
-                    Continuar para nome
+                  <button className="btn btn--primary" type="button" onClick={downloadPoster}>
+                    Baixar pôster PNG
                   </button>
                   <button className="btn btn--ghost" type="button" onClick={clearPhoto}>
                     Trocar foto
@@ -322,6 +276,7 @@ export default function CongressPhotoPage() {
 
             {error && <p className="photo-message photo-message--error" role="alert">{error}</p>}
             {status && <p className="photo-message" role="status">{status}</p>}
+            <p className="photo-privacy">A imagem é montada neste dispositivo e não é enviada ao servidor.</p>
           </div>
         </section>
       </div>

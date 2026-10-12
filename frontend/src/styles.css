@@ -266,26 +266,13 @@ body {
 }
 .photo-page__content {
   display: grid;
-  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1fr);
-  align-items: start;
-  gap: clamp(24px, 5vw, 64px);
-  width: min(100% - 40px, 1080px);
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  width: min(100% - 40px, 680px);
   margin: -34px auto 0;
   padding-bottom: 48px;
   position: relative;
 }
-.photo-controls {
-  padding: 24px;
-  border: 1px solid #d7e3d8;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 14px 38px -28px rgba(10, 51, 32, 0.65);
-}
-.photo-controls h2 {
-  margin: 0 0 22px;
-  font-size: 20px;
-}
-.photo-controls__label,
 .photo-zoom label {
   display: block;
   margin-bottom: 8px;
@@ -301,13 +288,6 @@ body {
   min-height: 50px;
   padding: 12px 10px;
   font-size: 14px;
-}
-.photo-action-upload {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  cursor: pointer;
 }
 .photo-file-input {
   display: none;
@@ -334,16 +314,6 @@ body {
   width: 100%;
   accent-color: var(--opella-purple);
 }
-.photo-reset {
-  padding: 0;
-  border: 0;
-  color: var(--opella-purple);
-  background: transparent;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
 .photo-message {
   margin: 16px 0 0;
   color: var(--opella-deep);
@@ -353,13 +323,10 @@ body {
 .photo-message--error {
   color: var(--danger);
 }
-.photo-download {
-  margin-top: 20px;
-  padding: 14px;
-  border-radius: 8px;
-}
 .photo-privacy {
+  width: 100%;
   margin: 12px 0 0;
+  text-align: center;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.5;
@@ -422,16 +389,6 @@ body {
   height: 100%;
   pointer-events: none;
 }
-.photo-preview__name {
-  max-width: 38ch;
-  margin: 0;
-  overflow-wrap: anywhere;
-  color: var(--opella-deep);
-  font-size: 14px;
-  font-weight: 700;
-  text-align: center;
-}
-
 @media (max-width: 760px) {
   .photo-page__header {
     padding: 26px 20px 56px;
@@ -450,9 +407,6 @@ body {
   }
   .photo-poster {
     width: min(100%, 340px);
-  }
-  .photo-controls {
-    padding: 20px;
   }
   .photo-actions {
     position: fixed;
