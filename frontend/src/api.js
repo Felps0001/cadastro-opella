@@ -91,10 +91,13 @@ export async function staffListRegistrations() {
   return handle(res);
 }
 
-export async function staffListAfyaQuizResponses() {
-  const res = await fetch(`${API_URL}/api/staff/afya-quiz`, {
+export async function staffListAfyaQuizResponses(origem = "afya") {
+  const res = await fetch(
+    `${API_URL}/api/staff/afya-quiz?origem=${encodeURIComponent(origem)}`,
+    {
     headers: { "x-staff-token": STAFF_TOKEN },
-  });
+    },
+  );
   return handle(res);
 }
 

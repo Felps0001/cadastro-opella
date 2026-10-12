@@ -2,6 +2,13 @@ import mongoose from "mongoose";
 
 const afyaQuizResponseSchema = new mongoose.Schema(
   {
+    origem: {
+      type: String,
+      enum: ["afya", "congresso-pediatria"],
+      required: true,
+      default: "afya",
+      index: true,
+    },
     momento: {
       type: String,
       enum: ["pre", "pos"],

@@ -112,8 +112,8 @@ function Rating({ label, value, onChange }) {
   );
 }
 
-export default function AfyaQuizPage() {
-  const [momento, setMomento] = useState("");
+export default function AfyaQuizPage({ momentoInicial = "" }) {
+  const [momento, setMomento] = useState(momentoInicial);
   const [participant, setParticipant] = useState({
     nome: "",
     crm: "",
@@ -131,6 +131,7 @@ export default function AfyaQuizPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const isDedicatedPage = Boolean(momentoInicial);
   const questions = momento === "pre" ? PRE_QUESTIONS : POST_QUESTIONS;
 
   function selectMoment(value) {
@@ -229,6 +230,7 @@ export default function AfyaQuizPage() {
     setError("");
     try {
       await createAfyaQuizResponse({
+        origem: isDedicatedPage ? "congresso-pediatria" : "afya",
         momento,
         nome: participant.nome.trim(),
         crm: participant.crm.trim(),
@@ -259,9 +261,17 @@ export default function AfyaQuizPage() {
       <header className="hero afya-hero">
         <div className="container">
           <Logo variant="light" />
-          <p className="afya-kicker">AFYA</p>
-          <h1 className="hero__tagline">Quiz Pré e Pós-Aula</h1>
-          <p className="hero__sub">Selecione o momento e registre suas respostas.</p>
+          {!isDedicatedPage && <p className="afya-kicker">AFYA</p>}
+          <h1 className="hero__tagline">
+            {isDedicatedPage
+              ? `Questionário ${momento === "pre" ? "Pré-aula" : "Pós-aula"}`
+              : "Quiz Pré e Pós-Aula"}
+          </h1>
+          <p className="hero__sub">
+            {isDedicatedPage
+              ? `Identifique-se para responder ao questionário ${momento === "pre" ? "pré" : "pós"}-aula.`
+              : "Selecione o momento e registre suas respostas."}
+          </p>
         </div>
       </header>
 
@@ -274,7 +284,7 @@ export default function AfyaQuizPage() {
           </div>
         ) : (
           <form className="card afya-quiz" onSubmit={handleFormSubmit} noValidate>
-            <section aria-labelledby="moment-title">
+            {!isDedicatedPage && <section aria-labelledby="moment-title">
               <h2 id="moment-title" className="quiz-section-title">
                 Qual questionário deseja responder?
               </h2>
@@ -296,7 +306,7 @@ export default function AfyaQuizPage() {
                   Pós-aula
                 </button>
               </div>
-            </section>
+            </section>}
 
             {momento && !identificationComplete && (
               <section className="quiz-identification" aria-labelledby="identification-title">

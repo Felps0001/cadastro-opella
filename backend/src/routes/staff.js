@@ -63,15 +63,23 @@ router.get("/registrations", requireStaff, async (req, res) => {
  * GET /api/staff/afya-quiz
  * Lista os cadastros e respostas dos questionarios Afya.
  */
-router.get("/afya-quiz", requireStaff, async (_req, res) => {
+router.get("/afya-quiz", requireStaff, async (req, res) => {
   try {
-    const responses = await AfyaQuizResponse.find({})
+    const origem = req.query.origem || "afya";
+    if (!["afya", "congresso-pediatria"].includes(origem)) {
+      return res.status(400).json({ error: "Origem de formulario invalida." });
+    }
+    const origemFilter = origem === "afya"
+      ? { $or: [{ origem: "afya" }, { origem: { $exists: false } }] }
+      : { origem };
+    const responses = await AfyaQuizResponse.find(origemFilter)
       .sort({ createdAt: -1 })
       .lean();
 
     return res.json(
       responses.map((response) => ({
         id: String(response._id),
+        origem: response.origem || "afya",
         momento: response.momento,
         nome: response.nome || "",
         crm: response.crm || "",

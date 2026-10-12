@@ -84,17 +84,20 @@ function buildCsv(rows) {
   return "\uFEFF" + [header, ...lines].join("\r\n");
 }
 
-export default function AfyaRegistrationsPage() {
+export default function AfyaRegistrationsPage({ congresso = false }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
+  const [momentFilter, setMomentFilter] = useState("all");
 
   async function load() {
     setLoading(true);
     setError("");
     try {
-      const data = await staffListAfyaQuizResponses();
+      const data = await staffListAfyaQuizResponses(
+        congresso ? "congresso-pediatria" : "afya",
+      );
       setRows(Array.isArray(data) ? data : []);
     } catch (requestError) {
       setError(
@@ -113,20 +116,22 @@ export default function AfyaRegistrationsPage() {
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return rows;
-    return rows.filter((row) =>
-      [row.nome, row.crm, row.email, row.campus, row.momento]
-        .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
-    );
-  }, [query, rows]);
+    return rows.filter((row) => {
+      const matchesMoment = momentFilter === "all" || row.momento === momentFilter;
+      const matchesQuery = !normalizedQuery ||
+        [row.nome, row.crm, row.email, row.campus, row.momento]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+      return matchesMoment && matchesQuery;
+    });
+  }, [momentFilter, query, rows]);
 
   function downloadCsv() {
     const blob = new Blob([buildCsv(filtered)], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `cadastros-afya-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `${congresso ? "cadastros-congresso-pediatria" : "cadastros-afya"}-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -140,14 +145,28 @@ export default function AfyaRegistrationsPage() {
     <div className="admin-page">
       <div className="admin-head container">
         <Logo variant="light" />
-        <h1 className="admin-title">Cadastros Afya</h1>
+        <h1 className="admin-title">{congresso ? "Cadastros Congresso de Pediatria" : "Cadastros Afya"}</h1>
         <p className="admin-sub">
           {loading
             ? "Carregando..."
-            : `${rows.length} resposta(s) • ${preCount} pré • ${postCount} pós`}
+            : momentFilter === "all"
+              ? `${rows.length} resposta(s) • ${preCount} pré • ${postCount} pós`
+              : `${filtered.length} resposta(s) de ${momentFilter === "pre" ? "pré" : "pós"}-aula • ${rows.length} no total`}
         </p>
 
         <div className="admin-toolbar">
+          {congresso && (
+            <select
+              className="admin-search admin-form-filter"
+              aria-label="Selecionar formulário"
+              value={momentFilter}
+              onChange={(event) => setMomentFilter(event.target.value)}
+            >
+              <option value="all">Todos os formulários</option>
+              <option value="pre">Pré-aula</option>
+              <option value="pos">Pós-aula</option>
+            </select>
+          )}
           <input
             className="admin-search"
             type="search"
@@ -171,7 +190,11 @@ export default function AfyaRegistrationsPage() {
       <div className="admin-body container">
         {error && <div className="error-msg">{error}</div>}
         {!error && !loading && filtered.length === 0 && (
-          <p className="admin-empty">Nenhum cadastro Afya encontrado.</p>
+          <p className="admin-empty">
+            {momentFilter === "all"
+              ? "Nenhum cadastro do Congresso de Pediatria encontrado."
+              : `Nenhum cadastro de ${momentFilter === "pre" ? "pré" : "pós"}-aula encontrado.`}
+          </p>
         )}
         {!error && filtered.length > 0 && (
           <div className="table-wrap">

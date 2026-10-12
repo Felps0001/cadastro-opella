@@ -19,6 +19,9 @@ export default function App() {
       <Route path="/farmaceutico" element={<FormPage />} />
       <Route path="/medico" element={<FormPage tipoFormulario="medico" />} />
       <Route path="/afya" element={<AfyaQuizPage />} />
+      <Route path="/congresso-pediatria-pre" element={<AfyaQuizPage momentoInicial="pre" />} />
+      <Route path="/congresso-pediatria-pos" element={<AfyaQuizPage momentoInicial="pos" />} />
+      <Route path="/congresso-pediatria-cadastros" element={<AfyaRegistrationsPage congresso />} />
       <Route path="/form-minas" element={<MinasFormPage />} />
       <Route path="/form-minas/sucesso/:id" element={<MinasSuccessPage />} />
       {/* Tela de sucesso com o QR Code gerado */}

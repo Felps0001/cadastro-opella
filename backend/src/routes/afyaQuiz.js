@@ -6,6 +6,7 @@ const router = Router();
 router.post("/", async (req, res) => {
   try {
     const {
+      origem = "afya",
       momento,
       nome = "",
       crm = "",
@@ -18,6 +19,9 @@ router.post("/", async (req, res) => {
       notaDidatica = null,
     } = req.body || {};
 
+    if (!["afya", "congresso-pediatria"].includes(origem)) {
+      return res.status(400).json({ error: "Origem de formulario invalida." });
+    }
     if (!['pre', 'pos'].includes(momento)) {
       return res.status(400).json({ error: "Selecione Pre-aula ou Pos-aula." });
     }
@@ -57,6 +61,7 @@ router.post("/", async (req, res) => {
     }
 
     await AfyaQuizResponse.create({
+      origem,
       momento,
       nome: String(nome).trim(),
       crm: String(crm).trim(),
