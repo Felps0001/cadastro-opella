@@ -5,12 +5,28 @@ import { staffListMinasRegistrations } from "../api.js";
 const COLUMNS = [
   { key: "nome", label: "Nome" },
   { key: "crm", label: "CRM" },
+  { key: "crmUf", label: "UF do CRM" },
   { key: "estudante", label: "Estudante" },
   { key: "especialidade", label: "Especialidade" },
   { key: "segundaEspecialidade", label: "2ª especialidade" },
   { key: "email", label: "E-mail" },
   { key: "whatsapp", label: "WhatsApp" },
-  { key: "signatureDataUrl", label: "Assinatura" },
+  { key: "cep", label: "CEP profissional" },
+  { key: "logradouro", label: "Logradouro profissional" },
+  { key: "numero", label: "Número" },
+  { key: "complemento", label: "Complemento" },
+  { key: "bairro", label: "Bairro" },
+  { key: "cidade", label: "Cidade" },
+  { key: "ufEndereco", label: "UF do endereço" },
+  { key: "pais", label: "País" },
+  { key: "evento", label: "Evento" },
+  { key: "produtosSolicitados", label: "Produtos / lotes / quantidade" },
+  { key: "representanteSistemico", label: "Representante sistêmico" },
+  { key: "signatureDataUrl", label: "Assinatura anterior" },
+  { key: "giftSignatureDataUrl", label: "Assinatura do brinde" },
+  { key: "photoSignatureDataUrl", label: "Assinatura da foto" },
+  { key: "declaracaoSolicitacao", label: "Declaração de solicitação" },
+  { key: "cienciaAvisoPrivacidade", label: "Ciência do aviso de privacidade" },
   { key: "aceiteComunicacao", label: "Aceite comunicação" },
   { key: "aceiteTermos", label: "Aceite termos" },
   { key: "giftCode", label: "Código brinde" },
@@ -22,15 +38,13 @@ const COLUMNS = [
   { key: "createdAt", label: "Cadastrado em" },
 ];
 
-const DATE_FIELDS = new Set([
-  "giftRedeemedAt",
-  "photoRedeemedAt",
-  "createdAt",
-]);
+const DATE_FIELDS = new Set(["giftRedeemedAt", "photoRedeemedAt", "createdAt"]);
 const BOOLEAN_FIELDS = new Set([
   "estudante",
   "aceiteComunicacao",
   "aceiteTermos",
+  "declaracaoSolicitacao",
+  "cienciaAvisoPrivacidade",
 ]);
 const STATUS_FIELDS = new Set(["giftRedeemed", "photoRedeemed"]);
 
@@ -45,7 +59,18 @@ function cellValue(row, key) {
   if (BOOLEAN_FIELDS.has(key)) return row[key] ? "Sim" : "Não";
   if (STATUS_FIELDS.has(key)) return row[key] ? "Utilizado" : "Disponível";
   if (key === "crm" && row.estudante && !row.crm) return "Estudante";
-  if (key === "signatureDataUrl") return row[key] ? "Presente" : "Sem assinatura";
+  if (key.endsWith("SignatureDataUrl"))
+    return row[key] ? "Presente" : "Sem assinatura";
+  if (key === "produtosSolicitados") {
+    return Array.isArray(row[key])
+      ? row[key]
+          .map(
+            (product) =>
+              `${product.nome} (${product.lote}) x ${product.quantidade}`,
+          )
+          .join(" | ")
+      : "";
+  }
   const value = row[key];
   return value === null || value === undefined ? "" : String(value);
 }
@@ -79,7 +104,8 @@ export default function MinasRegistrationsPage() {
       setError(
         requestError.status === 401
           ? "Token inválido. Verifique o VITE_STAFF_TOKEN no .env."
-          : requestError.message || "Não foi possível carregar os cadastros SBP.",
+          : requestError.message ||
+              "Não foi possível carregar os cadastros SBP.",
       );
     } finally {
       setLoading(false);
@@ -94,21 +120,16 @@ export default function MinasRegistrationsPage() {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return rows;
     return rows.filter((row) =>
-      [
-        row.nome,
-        row.crm,
-        row.email,
-        row.whatsapp,
-        row.giftCode,
-        row.photoCode,
-      ]
+      [row.nome, row.crm, row.email, row.whatsapp, row.giftCode, row.photoCode]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
     );
   }, [query, rows]);
 
   function downloadCsv() {
-    const blob = new Blob([buildCsv(filtered)], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([buildCsv(filtered)], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -141,7 +162,11 @@ export default function MinasRegistrationsPage() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
-          <button className="btn btn--ghost admin-btn" onClick={load} disabled={loading}>
+          <button
+            className="btn btn--ghost admin-btn"
+            onClick={load}
+            disabled={loading}
+          >
             Atualizar
           </button>
           <button
@@ -164,7 +189,9 @@ export default function MinasRegistrationsPage() {
             <table className="admin-table admin-table--minas">
               <thead>
                 <tr>
-                  {COLUMNS.map((column) => <th key={column.key}>{column.label}</th>)}
+                  {COLUMNS.map((column) => (
+                    <th key={column.key}>{column.label}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -178,14 +205,16 @@ export default function MinasRegistrationsPage() {
                             ? row[column.key]
                               ? "admin-status admin-status--used"
                               : "admin-status admin-status--available"
-                            : column.key === "giftCode" || column.key === "photoCode"
+                            : column.key === "giftCode" ||
+                                column.key === "photoCode"
                               ? "admin-code"
-                              : column.key === "signatureDataUrl"
-                              ? "admin-signature"
-                              : ""
+                              : column.key.endsWith("SignatureDataUrl")
+                                ? "admin-signature"
+                                : ""
                         }
                       >
-                        {column.key === "signatureDataUrl" && row[column.key] ? (
+                        {column.key.endsWith("SignatureDataUrl") &&
+                        row[column.key] ? (
                           <img
                             src={row[column.key]}
                             alt={`Assinatura de ${row.nome || "participante"}`}

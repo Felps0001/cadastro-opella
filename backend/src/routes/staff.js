@@ -107,12 +107,28 @@ router.get("/minas-registrations", requireStaff, async (_req, res) => {
         id: String(registration._id),
         nome: registration.nome || "",
         crm: registration.crm || "",
+        crmUf: registration.crmUf || "",
         estudante: Boolean(registration.estudante),
         especialidade: registration.especialidade || "",
         segundaEspecialidade: registration.segundaEspecialidade || "",
         email: registration.email || "",
         whatsapp: registration.whatsapp || "",
+        cep: registration.cep || "",
+        logradouro: registration.logradouro || "",
+        numero: registration.numero || "",
+        complemento: registration.complemento || "",
+        bairro: registration.bairro || "",
+        cidade: registration.cidade || "",
+        ufEndereco: registration.ufEndereco || "",
+        pais: registration.pais || "Brasil",
+        evento: registration.evento || "",
+        produtosSolicitados: registration.produtosSolicitados || [],
+        representanteSistemico: registration.representanteSistemico || "",
         signatureDataUrl: registration.signatureDataUrl || "",
+        giftSignatureDataUrl: registration.giftSignatureDataUrl || "",
+        photoSignatureDataUrl: registration.photoSignatureDataUrl || "",
+        declaracaoSolicitacao: Boolean(registration.declaracaoSolicitacao),
+        cienciaAvisoPrivacidade: Boolean(registration.cienciaAvisoPrivacidade),
         aceiteComunicacao: Boolean(registration.aceiteComunicacao),
         aceiteTermos: Boolean(registration.aceiteTermos),
         giftCode: registration.giftCode || "",
@@ -168,6 +184,7 @@ router.get("/lookup/:code", requireStaff, async (req, res) => {
       telefone: minasRegistration.whatsapp,
       purpose: isPhoto ? "photo" : "gift",
       purposeLabel: isPhoto ? "Foto" : "Brinde",
+      signatureRequired: true,
       redeemed: isPhoto
         ? minasRegistration.photoRedeemed
         : minasRegistration.giftRedeemed,
@@ -189,6 +206,7 @@ router.get("/lookup/:code", requireStaff, async (req, res) => {
 router.post("/redeem/:code", requireStaff, async (req, res) => {
   try {
     const code = String(req.params.code).trim().toUpperCase();
+    const { signatureDataUrl = "" } = req.body || {};
     const registration = await Registration.findOne({ code });
 
     if (registration) {
@@ -231,11 +249,24 @@ router.post("/redeem/:code", requireStaff, async (req, res) => {
     const redeemedAtField = isPhoto ? "photoRedeemedAt" : "giftRedeemedAt";
     const purpose = isPhoto ? "photo" : "gift";
     const purposeLabel = isPhoto ? "Foto" : "Brinde";
+    if (
+      !/^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(signatureDataUrl) ||
+      signatureDataUrl.length > 500_000
+    ) {
+      return res.status(400).json({ error: "A assinatura e obrigatoria para confirmar a retirada." });
+    }
+    const signatureField = isPhoto ? "photoSignatureDataUrl" : "giftSignatureDataUrl";
 
     const redeemedAt = new Date();
     const updated = await MinasRegistration.findOneAndUpdate(
       { _id: minasRegistration._id, [redeemedField]: false },
-      { $set: { [redeemedField]: true, [redeemedAtField]: redeemedAt } },
+      {
+        $set: {
+          [redeemedField]: true,
+          [redeemedAtField]: redeemedAt,
+          [signatureField]: signatureDataUrl,
+        },
+      },
       { new: true },
     );
 

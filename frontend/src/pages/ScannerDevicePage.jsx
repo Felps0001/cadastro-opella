@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Logo from "../components/Logo.jsx";
-import { staffRedeem } from "../api.js";
+import { staffLookup, staffRedeem } from "../api.js";
+import SignaturePad from "../components/SignaturePad.jsx";
 
 // Extrai os codigos suportados do conteudo lido, seja URL ou texto puro.
 function extractCode(text) {
@@ -17,6 +18,9 @@ export default function ScannerDevicePage() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null); // { type, data, message }
   const [value, setValue] = useState("");
+  const [signatureDataUrl, setSignatureDataUrl] = useState("");
+  const [signatureError, setSignatureError] = useState("");
+  const signaturePendingRef = useRef(false);
 
   // Mantem o campo invisivel sempre com foco para o scanner "digitar" nele.
   const focusInput = useCallback(() => {
@@ -27,11 +31,22 @@ export default function ScannerDevicePage() {
   const process = useCallback(
     async (raw) => {
       const code = extractCode(raw);
-      if (!code || busy) return;
+      if (!code || busy || signaturePendingRef.current) return;
 
       setBusy(true);
       try {
-        // Da baixa direto; o backend avisa se ja foi retirado.
+        const lookup = await staffLookup(code);
+        if (lookup.signatureRequired && lookup.redeemed) {
+          setResult({ type: "warn", data: lookup });
+          return;
+        }
+        if (lookup.signatureRequired) {
+          signaturePendingRef.current = true;
+          setSignatureDataUrl("");
+          setSignatureError("");
+          setResult({ type: "signature", data: lookup });
+          return;
+        }
         const data = await staffRedeem(code);
         setResult({ type: "ok", data });
       } catch (err) {
@@ -57,6 +72,29 @@ export default function ScannerDevicePage() {
     [busy],
   );
 
+  async function confirmSignature(event) {
+    event.preventDefault();
+    if (!result?.data?.code || !signatureDataUrl || busy) return;
+    setBusy(true);
+    setSignatureError("");
+    try {
+      const data = await staffRedeem(result.data.code, signatureDataUrl);
+      signaturePendingRef.current = false;
+      setResult({ type: "ok", data });
+    } catch (err) {
+      if (err.status === 409) {
+        signaturePendingRef.current = false;
+        setResult({ type: "warn", data: err.data });
+      } else {
+        setSignatureError(
+          err.message || "Não foi possível confirmar a retirada.",
+        );
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
   // O scanner de dispositivo envia o conteudo terminado por Enter.
   const handleKeyDown = useCallback(
     (e) => {
@@ -71,10 +109,13 @@ export default function ScannerDevicePage() {
   );
 
   useEffect(() => {
-    focusInput();
+    if (result?.type !== "signature") focusInput();
   }, [focusInput, result]);
 
   function reset() {
+    signaturePendingRef.current = false;
+    setSignatureDataUrl("");
+    setSignatureError("");
     setResult(null);
     setValue("");
     // Devolve o foco ao campo apos limpar o resultado.
@@ -82,7 +123,10 @@ export default function ScannerDevicePage() {
   }
 
   return (
-    <div className="scanner-page" onClick={focusInput}>
+    <div
+      className="scanner-page"
+      onClick={() => result?.type !== "signature" && focusInput()}
+    >
       <div className="scanner-head">
         <Logo variant="light" />
         <h1>Leitor de benefícios (scanner)</h1>
@@ -94,7 +138,9 @@ export default function ScannerDevicePage() {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        onBlur={() => setTimeout(focusInput, 0)}
+        onBlur={() => {
+          if (result?.type !== "signature") setTimeout(focusInput, 0);
+        }}
         autoFocus
         aria-hidden="true"
         style={{
@@ -122,11 +168,49 @@ export default function ScannerDevicePage() {
 
       {result && (
         <div className={`result-card result--${result.type}`}>
+          {result.type === "signature" && (
+            <form onSubmit={confirmSignature}>
+              <h2>Assinatura para {result.data.purposeLabel.toLowerCase()}</h2>
+              <div className="result-row">
+                <span>Nome</span>
+                <span>{result.data.nome || "-"}</span>
+              </div>
+              <div className="result-row">
+                <span>Código</span>
+                <span>{result.data.code}</span>
+              </div>
+              <p className="subtitle">
+                Peça à pessoa para assinar e confirme a entrega.
+              </p>
+              <SignaturePad onChange={setSignatureDataUrl} />
+              {signatureError && (
+                <div className="error-msg">{signatureError}</div>
+              )}
+              <button
+                className="btn btn--primary"
+                type="submit"
+                disabled={!signatureDataUrl || busy}
+              >
+                {busy ? "Confirmando..." : "Confirmar retirada"}
+              </button>
+              <button
+                className="btn btn--ghost"
+                type="button"
+                onClick={reset}
+                disabled={busy}
+              >
+                Cancelar leitura
+              </button>
+            </form>
+          )}
+
           {result.type === "ok" && (
             <>
               <div className="big-icon">✅</div>
               <h2>
-                {result.data.purpose === "photo" ? "Foto liberada!" : "Brinde liberado!"}
+                {result.data.purpose === "photo"
+                  ? "Foto liberada!"
+                  : "Brinde liberado!"}
               </h2>
               <div className="spacer-8" />
               <div className="result-row">

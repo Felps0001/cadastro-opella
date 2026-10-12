@@ -69,10 +69,17 @@ export async function staffLookup(code) {
   return handle(res);
 }
 
-export async function staffRedeem(code) {
+export async function staffRedeem(code, signatureDataUrl = "") {
   const res = await fetch(
     `${API_URL}/api/staff/redeem/${encodeURIComponent(code)}`,
-    { method: "POST", headers: { "x-staff-token": STAFF_TOKEN } }
+    {
+      method: "POST",
+      headers: {
+        "x-staff-token": STAFF_TOKEN,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ signatureDataUrl }),
+    }
   );
   return handle(res);
 }

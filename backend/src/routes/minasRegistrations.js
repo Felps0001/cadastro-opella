@@ -25,12 +25,21 @@ router.post("/", async (req, res) => {
     const {
       nome = "",
       crm = "",
+      crmUf = "",
       estudante = false,
       especialidade = "",
       segundaEspecialidade = "Não se aplica",
       email = "",
       whatsapp = "",
-      signatureDataUrl = "",
+      cep = "",
+      logradouro = "",
+      numero = "",
+      complemento = "",
+      bairro = "",
+      cidade = "",
+      ufEndereco = "",
+      declaracaoSolicitacao = false,
+      cienciaAvisoPrivacidade = false,
       aceiteComunicacao = false,
       aceiteTermos = false,
     } = req.body || {};
@@ -41,17 +50,29 @@ router.post("/", async (req, res) => {
     if (!estudante && !String(crm).trim()) {
       return res.status(400).json({ error: "Informe o CRM." });
     }
+    if (!estudante && !/^\d+$/.test(String(crm).trim())) {
+      return res.status(400).json({ error: "O CRM deve conter somente numeros." });
+    }
+    if (!estudante && !String(crmUf).trim()) {
+      return res.status(400).json({ error: "Informe a UF do CRM." });
+    }
     if (String(especialidade).trim() !== "Pediatria") {
       return res.status(400).json({ error: "Selecione a especialidade." });
     }
-    if (!isValidEmail(String(email).trim())) {
+    if (String(email).trim() && !isValidEmail(String(email).trim())) {
       return res.status(400).json({ error: "E-mail profissional invalido." });
     }
-    if (String(whatsapp).replace(/\D/g, "").length < 10) {
+    if (String(whatsapp).trim() && String(whatsapp).replace(/\D/g, "").length < 10) {
       return res.status(400).json({ error: "WhatsApp invalido." });
     }
-    if (!String(signatureDataUrl).startsWith("data:image/png;base64,")) {
-      return res.status(400).json({ error: "Assinatura obrigatoria antes de receber o QR Code." });
+    if (String(cep).replace(/\D/g, "").length !== 8) {
+      return res.status(400).json({ error: "CEP profissional invalido." });
+    }
+    if (![logradouro, numero, bairro, cidade, ufEndereco].every((value) => String(value).trim())) {
+      return res.status(400).json({ error: "Preencha os campos obrigatorios do endereco profissional." });
+    }
+    if (declaracaoSolicitacao !== true || cienciaAvisoPrivacidade !== true) {
+      return res.status(400).json({ error: "A declaracao de solicitacao e a ciencia de privacidade sao obrigatorias." });
     }
     if (aceiteComunicacao !== true || aceiteTermos !== true) {
       return res.status(400).json({ error: "Os aceites sao obrigatorios." });
@@ -65,12 +86,28 @@ router.post("/", async (req, res) => {
     const registration = await MinasRegistration.create({
       nome: String(nome).trim(),
       crm: estudante ? "" : String(crm).trim().toUpperCase(),
+      crmUf: estudante ? "" : String(crmUf).trim().toUpperCase(),
       estudante: Boolean(estudante),
       especialidade: "Pediatria",
       segundaEspecialidade: String(segundaEspecialidade).trim() || "Não se aplica",
       email: String(email).trim().toLowerCase(),
       whatsapp: String(whatsapp).trim(),
-      signatureDataUrl: String(signatureDataUrl),
+      cep: String(cep).trim(),
+      logradouro: String(logradouro).trim(),
+      numero: String(numero).trim(),
+      complemento: String(complemento).trim(),
+      bairro: String(bairro).trim(),
+      cidade: String(cidade).trim(),
+      ufEndereco: String(ufEndereco).trim().toUpperCase(),
+      pais: "Brasil",
+      evento: "Congresso Brasileiro de Pediatria",
+      produtosSolicitados: [
+        { nome: "Allegra 120 mg", lote: "FRA0378", quantidade: "10" },
+        { nome: "Allegra 180 mg", lote: "FRA0555", quantidade: "10" },
+      ],
+      representanteSistemico: "Rodrigo Loder",
+      declaracaoSolicitacao: true,
+      cienciaAvisoPrivacidade: true,
       aceiteComunicacao: true,
       aceiteTermos: true,
       giftCode,
@@ -97,7 +134,29 @@ router.get("/:id", async (req, res) => {
     return res.json({
       id: String(registration._id),
       nome: registration.nome,
+      crm: registration.crm,
+      crmUf: registration.crmUf,
+      estudante: Boolean(registration.estudante),
+      especialidade: registration.especialidade,
+      segundaEspecialidade: registration.segundaEspecialidade,
+      email: registration.email,
+      whatsapp: registration.whatsapp,
+      cep: registration.cep,
+      logradouro: registration.logradouro,
+      numero: registration.numero,
+      complemento: registration.complemento,
+      bairro: registration.bairro,
+      cidade: registration.cidade,
+      ufEndereco: registration.ufEndereco,
+      pais: registration.pais || "Brasil",
+      evento: registration.evento || "",
+      produtosSolicitados: registration.produtosSolicitados || [],
+      representanteSistemico: registration.representanteSistemico || "",
       signatureDataUrl: registration.signatureDataUrl || "",
+      giftSignatureDataUrl: registration.giftSignatureDataUrl || "",
+      photoSignatureDataUrl: registration.photoSignatureDataUrl || "",
+      declaracaoSolicitacao: Boolean(registration.declaracaoSolicitacao),
+      cienciaAvisoPrivacidade: Boolean(registration.cienciaAvisoPrivacidade),
       giftCode: registration.giftCode,
       photoCode: registration.photoCode,
       giftRedeemed: Boolean(registration.giftRedeemed),

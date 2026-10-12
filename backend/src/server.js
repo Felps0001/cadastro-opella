@@ -34,7 +34,7 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "100kb" }));
+app.use(express.json({ limit: "1mb" }));
 
 // Rate limit basico para evitar abuso do cadastro
 const registerLimiter = rateLimit({
