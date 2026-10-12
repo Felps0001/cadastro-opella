@@ -22,6 +22,7 @@ function safeFileName(value) {
 
 export default function CongressPhotoPage() {
   const videoRef = useRef(null);
+  const fileInputRef = useRef(null);
   const streamRef = useRef(null);
   const [name, setName] = useState("");
   const [photoDataUrl, setPhotoDataUrl] = useState("");
@@ -222,15 +223,19 @@ export default function CongressPhotoPage() {
           <div className="photo-controls__label">Escolha como adicionar sua foto</div>
           <div className="photo-actions">
             <div className="photo-file-action">
-              <label className="btn btn--primary photo-action-upload" htmlFor="participant-photo">
+              <button
+                className="btn btn--primary photo-action-upload"
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+              >
                 Escolher imagem
-              </label>
+              </button>
               <input
+                ref={fileInputRef}
                 id="participant-photo"
                 className="photo-file-input"
                 type="file"
                 accept="image/*"
-                capture="user"
                 onChange={selectPhoto}
               />
             </div>
