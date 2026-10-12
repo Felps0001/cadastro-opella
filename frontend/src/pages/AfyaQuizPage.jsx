@@ -123,7 +123,11 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
   const [lgpdConsent, setLgpdConsent] = useState(false);
   const [identificationComplete, setIdentificationComplete] = useState(false);
   const [answers, setAnswers] = useState(["", "", ""]);
-  const [shuffledOptions, setShuffledOptions] = useState([]);
+  const [shuffledOptions, setShuffledOptions] = useState(() =>
+    momentoInicial
+      ? shuffleOptions(momentoInicial === "pre" ? PRE_QUESTIONS : POST_QUESTIONS)
+      : [],
+  );
   const [clarity, setClarity] = useState(null);
   const [relevance, setRelevance] = useState(null);
   const [didactics, setDidactics] = useState(null);
