@@ -173,7 +173,7 @@ export default function MinasFormPage() {
     setLoading(true);
     try {
       const data = await createMinasRegistration({ ...form, pais: "Brasil" });
-      navigate(`/form-minas/sucesso/${data.id}`);
+      navigate(`/congresso-pediatria/sucesso/${data.id}`);
     } catch (requestError) {
       setError(requestError.message || "Não foi possível concluir o cadastro.");
     } finally {

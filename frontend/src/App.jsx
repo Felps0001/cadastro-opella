@@ -22,7 +22,9 @@ export default function App() {
       <Route path="/congresso-pediatria-pre" element={<AfyaQuizPage momentoInicial="pre" />} />
       <Route path="/congresso-pediatria-pos" element={<AfyaQuizPage momentoInicial="pos" />} />
       <Route path="/congresso-pediatria-cadastros" element={<AfyaRegistrationsPage congresso />} />
-      <Route path="/form-minas" element={<MinasFormPage />} />
+      <Route path="/congresso-pediatria" element={<MinasFormPage />} />
+      <Route path="/congresso-pediatria/sucesso/:id" element={<MinasSuccessPage />} />
+      <Route path="/form-minas" element={<Navigate to="/congresso-pediatria" replace />} />
       <Route path="/form-minas/sucesso/:id" element={<MinasSuccessPage />} />
       {/* Tela de sucesso com o QR Code gerado */}
       <Route path="/sucesso/:code" element={<SuccessPage />} />
