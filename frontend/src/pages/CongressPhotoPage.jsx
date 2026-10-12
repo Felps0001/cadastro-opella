@@ -23,6 +23,7 @@ function safeFileName(value) {
 export default function CongressPhotoPage() {
   const videoRef = useRef(null);
   const fileInputRef = useRef(null);
+  const nameInputRef = useRef(null);
   const streamRef = useRef(null);
   const [name, setName] = useState("");
   const [photoDataUrl, setPhotoDataUrl] = useState("");
@@ -192,6 +193,10 @@ export default function CongressPhotoPage() {
     setStatus("");
   }
 
+  function goToName() {
+    nameInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   return (
     <main className="photo-page">
       <header className="photo-page__header">
@@ -209,6 +214,7 @@ export default function CongressPhotoPage() {
           <div className="field">
             <label htmlFor="participant-name">Seu nome <span className="req">*</span></label>
             <input
+              ref={nameInputRef}
               id="participant-name"
               type="text"
               autoComplete="name"
@@ -219,62 +225,6 @@ export default function CongressPhotoPage() {
               required
             />
           </div>
-
-          <div className="photo-controls__label">Escolha como adicionar sua foto</div>
-          <div className="photo-actions">
-            <div className="photo-file-action">
-              <button
-                className="btn btn--primary photo-action-upload"
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Escolher imagem
-              </button>
-              <input
-                ref={fileInputRef}
-                id="participant-photo"
-                className="photo-file-input"
-                type="file"
-                accept="image/*"
-                onChange={selectPhoto}
-              />
-            </div>
-            <button className="btn btn--ghost" type="button" onClick={openCamera}>
-              {cameraOpen ? "Fechar câmera" : "Abrir câmera"}
-            </button>
-          </div>
-
-          {cameraOpen && (
-            <div className="photo-camera">
-              <button className="btn btn--primary" type="button" onClick={capturePhoto}>
-                Tirar selfie
-              </button>
-            </div>
-          )}
-
-          {(photoDataUrl || cameraOpen) && (
-            <div className="photo-zoom">
-              <label htmlFor="photo-zoom">Ajustar enquadramento</label>
-              <input
-                id="photo-zoom"
-                type="range"
-                min="1"
-                max="2.5"
-                step="0.05"
-                value={zoom}
-                onChange={(event) => setZoom(Number(event.target.value))}
-              />
-              {photoDataUrl && (
-                <button className="photo-reset" type="button" onClick={clearPhoto}>
-                  Trocar foto
-                </button>
-              )}
-            </div>
-          )}
-
-          {error && <p className="photo-message photo-message--error" role="alert">{error}</p>}
-          {status && <p className="photo-message" role="status">{status}</p>}
-
           <button
             className="btn btn--primary photo-download"
             type="button"
@@ -310,6 +260,69 @@ export default function CongressPhotoPage() {
             <img className="photo-poster__mask" src={maskImageUrl} alt="Arte do simpósio do Congresso Brasileiro de Pediatria" />
           </div>
           {name.trim() && <p className="photo-preview__name">{name.trim()}</p>}
+
+          <div className="photo-preview__tools">
+            <div className="photo-actions">
+              {photoDataUrl ? (
+                <>
+                  <button className="btn btn--primary" type="button" onClick={goToName}>
+                    Continuar para nome
+                  </button>
+                  <button className="btn btn--ghost" type="button" onClick={clearPhoto}>
+                    Trocar foto
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="btn btn--primary"
+                    type="button"
+                    onClick={cameraOpen ? capturePhoto : openCamera}
+                  >
+                    {cameraOpen ? "Capturar selfie" : "Tirar selfie"}
+                  </button>
+                  <button
+                    className="btn btn--ghost"
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Escolher imagem
+                  </button>
+                </>
+              )}
+              {cameraOpen && (
+                <button className="photo-camera-close" type="button" onClick={stopCamera}>
+                  Fechar câmera
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                id="participant-photo"
+                className="photo-file-input"
+                type="file"
+                accept="image/*"
+                onChange={selectPhoto}
+              />
+            </div>
+
+            {(photoDataUrl || cameraOpen) && (
+              <div className="photo-zoom">
+                <label htmlFor="photo-zoom">Ajustar enquadramento</label>
+                <input
+                  id="photo-zoom"
+                  type="range"
+                  min="1"
+                  max="2.5"
+                  step="0.05"
+                  value={zoom}
+                  onChange={(event) => setZoom(Number(event.target.value))}
+                />
+              </div>
+            )}
+
+            {error && <p className="photo-message photo-message--error" role="alert">{error}</p>}
+            {status && <p className="photo-message" role="status">{status}</p>}
+          </div>
         </section>
       </div>
     </main>
