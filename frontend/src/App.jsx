@@ -10,6 +10,7 @@ import AfyaRegistrationsPage from "./pages/AfyaRegistrationsPage.jsx";
 import MinasFormPage from "./pages/MinasFormPage.jsx";
 import MinasSuccessPage from "./pages/MinasSuccessPage.jsx";
 import MinasRegistrationsPage from "./pages/MinasRegistrationsPage.jsx";
+import CongressPhotoPage from "./pages/CongressPhotoPage.jsx";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
       <Route path="/congresso-pediatria-pos" element={<AfyaQuizPage momentoInicial="pos" />} />
       <Route path="/congresso-pediatria-cadastros" element={<AfyaRegistrationsPage congresso />} />
       <Route path="/congresso-pediatria" element={<MinasFormPage />} />
+      <Route path="/congresso-pediatria-foto" element={<CongressPhotoPage />} />
       <Route path="/congresso-pediatria/sucesso/:id" element={<MinasSuccessPage />} />
       <Route path="/form-minas" element={<Navigate to="/congresso-pediatria" replace />} />
       <Route path="/form-minas/sucesso/:id" element={<MinasSuccessPage />} />
