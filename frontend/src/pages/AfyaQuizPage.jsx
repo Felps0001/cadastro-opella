@@ -5,73 +5,91 @@ import { createAfyaQuizResponse } from "../api.js";
 const PRE_QUESTIONS = [
   {
     question:
-      "Durante os primeiros anos após a menopausa, a perda óssea acelerada ocorre principalmente em decorrência de qual mecanismo fisiopatológico?",
+      "Em caso de febre que necessitam de tratamento antipirético, qual diferencial torna a dipirona (Novalgina®) uma escolha preferencial em relação aos outros antitérmicos amplamente utilizados?",
     options: [
       {
         id: "A",
-        text: "Aumento da produção de osteoprotegerina (OPG), reduzindo a atividade osteoclástica.",
+        text: "Atua promovendo redução inicial da temperatura, sem diferenças na manutenção do efeito, apenas para febre baixa ao longo do tempo.",
       },
       {
         id: "B",
-        text: "Redução do estradiol, com aumento da atividade de RANKL e da reabsorção óssea.",
+        text: "Apresenta eficácia semelhante aos demais antitérmicos, sendo escolhida principalmente para casos de febre moderada e febre alta e em casos de dores leves.",
       },
       {
         id: "C",
-        text: "Diminuição da atividade osteoclástica por ação compensatória do PTH.",
+        text: "Proporciona maior controle da febre, manutenção da temperatura normalizada por mais tempo e elevada eficácia, sendo recomendada para todos os níveis de febre e dor.",
       },
       {
         id: "D",
-        text: "Aumento da absorção intestinal de cálcio independente da vitamina D.",
+        text: "Seu principal diferencial é a posologia de uma gota por kilo. para potencializar o controle da febre alta e dores intensas.",
       },
     ],
   },
   {
     question:
-      "Uma mulher de 48 anos, sem queixas gastrointestinais e sem uso de inibidores da bomba de prótons, necessita suplementação de cálcio para complementar sua ingestão alimentar. Qual característica torna o carbonato de cálcio uma opção adequada para essa paciente?",
+      "Em crianças com rinite alérgica ou urticária que necessitam de tratamento anti-histamínico, qual diferencial torna a fexofenadina (Allegra®) uma escolha preferencial em relação aos anti-histamínicos de 1ª geração?",
     options: [
       {
         id: "A",
-        text: "Pode ser utilizado preferencialmente em jejum por não depender da acidez gástrica.",
+        text: "Promove sedação para melhorar o descanso e o controle dos sintomas.",
       },
       {
         id: "B",
-        text: "Apresenta menor teor de cálcio elementar que o citrato de cálcio.",
+        text: "Apresenta maior penetração no sistema nervoso central, aumentando a eficácia clínica.",
       },
       {
         id: "C",
-        text: "Possui elevado teor de cálcio elementar (40%) e boa eficácia quando administrado junto às refeições.",
+        text: "Controla os sintomas alérgicos preservando cognição, atenção e desempenho diário por ser verdadeiramente não sedativa e ter mínima penetração cerebral.",
       },
       {
         id: "D",
-        text: "É o sal de escolha para pacientes bariátricas e usuárias crônicas de IBPs.",
+        text: "Possui efeito anticolinérgico mais intenso, contribuindo para o controle da rinorreia.",
       },
     ],
   },
   {
     question:
-      "Considerando os dados de consumo de cálcio da população brasileira, qual afirmação é a mais adequada para a prática ginecológica?",
+      "Qual das afirmações sobre o uso de probióticos na prevenção da diarreia associada a antibióticos é a mais correta?",
     options: [
       {
         id: "A",
-        text: "A maioria das mulheres brasileiras atinge a recomendação diária de cálcio apenas pela alimentação.",
+        text: "Qualquer probiótico pode ser utilizado, pois os efeitos são semelhantes entre as diferentes cepas.",
       },
       {
         id: "B",
-        text: "O consumo médio de cálcio no Brasil é suficiente para prevenir a perda óssea associada ao envelhecimento.",
+        text: "O resultado clínico depende exclusivamente da concentração de UFC.",
       },
       {
         id: "C",
-        text: "Como a calcemia geralmente permanece normal, não há necessidade de avaliar a ingestão alimentar de cálcio.",
+        text: "As evidências de eficácia são específicas para determinadas cepas, como B. clausii O/C, SIN, N/R e T, presentes em Enterogermina®.",
       },
       {
         id: "D",
-        text: "A ingestão média de cálcio no Brasil é inferior às recomendações, tornando fundamental investigar a dieta, pois o organismo pode mobilizar cálcio do esqueleto para manter a calcemia.",
+        text: "Combinações com maior número de cepas são sempre superiores às formulações com menos cepas.",
       },
     ],
   },
 ];
 
 const POST_QUESTIONS = PRE_QUESTIONS;
+const POST_RATINGS = [
+  {
+    key: "clarity",
+    label: "4. Como você avalia a clareza e objetividade da apresentação?",
+  },
+  {
+    key: "relevance",
+    label: "5. O conteúdo apresentado foi relevante para sua prática clínica?",
+  },
+  {
+    key: "didactics",
+    label: "6. O que você achou da didática dos palestrantes?",
+  },
+  {
+    key: "event",
+    label: "7. Como você avalia o evento no geral?",
+  },
+];
 
 function shuffleOptions(questions) {
   return questions.map(({ options }) => {
@@ -132,6 +150,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
   const [clarity, setClarity] = useState(null);
   const [relevance, setRelevance] = useState(null);
   const [didactics, setDidactics] = useState(null);
+  const [eventRating, setEventRating] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -150,6 +169,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
     setClarity(null);
     setRelevance(null);
     setDidactics(null);
+    setEventRating(null);
     setCurrentStep(0);
     setError("");
   }
@@ -205,7 +225,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
       setError("Selecione uma alternativa para continuar.");
       return;
     }
-    const ratingsByStep = [clarity, relevance, didactics];
+    const ratingsByStep = [clarity, relevance, didactics, eventRating];
     if (
       currentStep >= questions.length &&
       ratingsByStep[currentStep - questions.length] === null
@@ -224,7 +244,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
     }
     if (
       momento === "pos" &&
-      [clarity, relevance, didactics].some((rating) => rating === null)
+      [clarity, relevance, didactics, eventRating].some((rating) => rating === null)
     ) {
       setError("Selecione uma nota de 0 a 10 em todas as avaliações.");
       return;
@@ -245,6 +265,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
         notaClareza: momento === "pos" ? clarity : null,
         notaRelevancia: momento === "pos" ? relevance : null,
         notaDidatica: momento === "pos" ? didactics : null,
+        notaEvento: momento === "pos" ? eventRating : null,
       });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -255,7 +276,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
     }
   }
 
-  const totalSteps = momento === "pos" ? 6 : 3;
+  const totalSteps = momento === "pos" ? questions.length + POST_RATINGS.length : questions.length;
   const isLastStep = currentStep === totalSteps - 1;
   const progress = momento ? ((currentStep + 1) / totalSteps) * 100 : 0;
   const currentQuestion = questions[currentStep];
@@ -420,7 +441,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                       {currentQuestion.question}
                     </legend>
                     <div className="quiz-options">
-                      {shuffledOptions[currentStep].map((option, optionIndex) => (
+                      {shuffledOptions[currentStep].map((option) => (
                         <button
                           type="button"
                           key={option.id}
@@ -429,7 +450,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                           onClick={() => selectAnswer(currentStep, option.id)}
                         >
                           <span className="quiz-option__letter">
-                            {String.fromCharCode(65 + optionIndex)}
+                            {option.id}
                           </span>
                           <span>{option.text}</span>
                         </button>
@@ -441,25 +462,32 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                 {momento === "pos" && currentStep >= questions.length && (
                   <section className="quiz-evaluation" aria-label="Avaliação da aula">
                     {currentStep === 3 && (
-                    <Rating
-                      label="4. Como você avalia a clareza e objetividade da apresentação?"
-                      value={clarity}
-                      onChange={setClarity}
-                    />
+                      <Rating
+                        label={POST_RATINGS[0].label}
+                        value={clarity}
+                        onChange={setClarity}
+                      />
                     )}
                     {currentStep === 4 && (
-                    <Rating
-                      label="5. O conteúdo apresentado foi relevante para sua prática clínica?"
-                      value={relevance}
-                      onChange={setRelevance}
-                    />
+                      <Rating
+                        label={POST_RATINGS[1].label}
+                        value={relevance}
+                        onChange={setRelevance}
+                      />
                     )}
                     {currentStep === 5 && (
-                    <Rating
-                      label="6. Como você avalia a aula no geral?"
-                      value={didactics}
-                      onChange={setDidactics}
-                    />
+                      <Rating
+                        label={POST_RATINGS[2].label}
+                        value={didactics}
+                        onChange={setDidactics}
+                      />
+                    )}
+                    {currentStep === 6 && (
+                      <Rating
+                        label={POST_RATINGS[3].label}
+                        value={eventRating}
+                        onChange={setEventRating}
+                      />
                     )}
                   </section>
                 )}

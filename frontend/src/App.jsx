@@ -11,6 +11,7 @@ import MinasFormPage from "./pages/MinasFormPage.jsx";
 import MinasSuccessPage from "./pages/MinasSuccessPage.jsx";
 import MinasRegistrationsPage from "./pages/MinasRegistrationsPage.jsx";
 import CongressPhotoPage from "./pages/CongressPhotoPage.jsx";
+import CongressJantarPage from "./pages/CongressJantarPage.jsx";
 
 export default function App() {
   return (
@@ -22,6 +23,8 @@ export default function App() {
       <Route path="/afya" element={<AfyaQuizPage />} />
       <Route path="/congresso-pediatria-pre" element={<AfyaQuizPage momentoInicial="pre" />} />
       <Route path="/congresso-pediatria-pos" element={<AfyaQuizPage momentoInicial="pos" />} />
+      <Route path="/congresso-jantar" element={<CongressJantarPage />} />
+      <Route path="/congresso-pediatria-jantar" element={<CongressJantarPage />} />
       <Route path="/congresso-pediatria-cadastros" element={<AfyaRegistrationsPage congresso />} />
       <Route path="/congresso-pediatria" element={<MinasFormPage />} />
       <Route path="/congresso-pediatria-foto" element={<CongressPhotoPage />} />
