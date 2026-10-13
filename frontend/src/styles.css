@@ -570,7 +570,23 @@ body {
   border-top-color: var(--opella-pink);
 }
 .minas-qr-ticket--student {
-  border-top-color: var(--danger);
+  border-top: 0;
+  padding-top: 0;
+  overflow: hidden;
+}
+.minas-qr-ticket__student-brand {
+  display: grid;
+  min-height: 60px;
+  margin: 0 -16px 16px;
+  padding: 10px 8px;
+  place-items: center;
+  border-radius: 10px 10px 0 0;
+  background: var(--danger);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.15;
+  text-align: center;
 }
 .minas-qr-ticket__head {
   display: flex;

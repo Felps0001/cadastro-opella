@@ -23,6 +23,11 @@ function QrTicket({ type, title, description, code, redeemed, redeemedAt, studen
       role="tabpanel"
       aria-labelledby={`minas-tab-${type}`}
     >
+      {student && (
+        <div className="minas-qr-ticket__student-brand">
+          ENTEROGERMINA
+        </div>
+      )}
       <div className="minas-qr-ticket__head">
         <span className="minas-qr-ticket__type">{title}</span>
         <span className={`badge ${redeemed ? "badge--warn" : "badge--ok"}`}>

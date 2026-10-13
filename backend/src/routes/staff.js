@@ -192,7 +192,7 @@ router.get("/lookup/:code", requireStaff, async (req, res) => {
       telefone: minasRegistration.whatsapp,
       purpose: isPhoto ? "photo" : "gift",
       purposeLabel: isPhoto ? "Foto" : "Brinde",
-      signatureRequired: !isPhoto,
+      signatureRequired: !isPhoto && !minasRegistration.estudante,
       redeemed: isPhoto
         ? minasRegistration.photoRedeemed
         : minasRegistration.giftRedeemed,
@@ -257,7 +257,7 @@ router.post("/redeem/:code", requireStaff, async (req, res) => {
     const redeemedAtField = isPhoto ? "photoRedeemedAt" : "giftRedeemedAt";
     const purpose = isPhoto ? "photo" : "gift";
     const purposeLabel = isPhoto ? "Foto" : "Brinde";
-    if (!isPhoto && (
+    if (!isPhoto && !minasRegistration.estudante && (
       !/^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(signatureDataUrl) ||
       signatureDataUrl.length > 500_000
     )) {
@@ -269,7 +269,9 @@ router.post("/redeem/:code", requireStaff, async (req, res) => {
       [redeemedField]: true,
       [redeemedAtField]: redeemedAt,
     };
-    if (!isPhoto) updateFields.giftSignatureDataUrl = signatureDataUrl;
+    if (!isPhoto && !minasRegistration.estudante) {
+      updateFields.giftSignatureDataUrl = signatureDataUrl;
+    }
 
     const updated = await MinasRegistration.findOneAndUpdate(
       { _id: minasRegistration._id, [redeemedField]: false },
