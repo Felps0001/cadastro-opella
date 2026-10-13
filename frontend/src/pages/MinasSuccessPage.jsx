@@ -4,7 +4,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import Logo from "../components/Logo.jsx";
 import { getMinasRegistration } from "../api.js";
 
-function QrTicket({ type, title, description, code, redeemed, redeemedAt }) {
+function QrTicket({ type, title, description, code, redeemed, redeemedAt, student = false }) {
   const qrRef = useRef(null);
 
   function download() {
@@ -19,7 +19,7 @@ function QrTicket({ type, title, description, code, redeemed, redeemedAt }) {
   return (
     <section
       id={`minas-panel-${type}`}
-      className={`minas-qr-ticket minas-qr-ticket--${type}`}
+      className={`minas-qr-ticket minas-qr-ticket--${type} ${student ? "minas-qr-ticket--student" : ""}`}
       role="tabpanel"
       aria-labelledby={`minas-tab-${type}`}
     >
@@ -130,6 +130,7 @@ export default function MinasSuccessPage() {
                     code={registration.giftCode}
                     redeemed={registration.giftRedeemed}
                     redeemedAt={registration.giftRedeemedAt}
+                    student={registration.estudante}
                   />
                 ) : (
                   <QrTicket

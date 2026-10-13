@@ -569,6 +569,9 @@ body {
 .minas-qr-ticket--photo {
   border-top-color: var(--opella-pink);
 }
+.minas-qr-ticket--student {
+  border-top-color: var(--danger);
+}
 .minas-qr-ticket__head {
   display: flex;
   justify-content: space-between;
