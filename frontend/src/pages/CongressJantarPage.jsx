@@ -9,7 +9,7 @@ const QUESTIONS = [
   },
   {
     key: "didactics",
-    label: "O que você achou da didática dos palestrantes?",
+    label: "O que você achou da didática do palestrante?",
   },
   {
     key: "event",
