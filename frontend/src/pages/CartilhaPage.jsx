@@ -5,10 +5,10 @@ import pagina2Esquerda from "../components/Pagina_2_Esquerda.jpg";
 import pagina2Direita from "../components/Pagina_2_Direita.jpg";
 
 const PAGE_IMAGES = [
-  pagina1Esquerda,
   pagina1Direita,
-  pagina2Esquerda,
+  pagina1Esquerda,
   pagina2Direita,
+  pagina2Esquerda,
 ];
 
 export default function CartilhaPage() {
