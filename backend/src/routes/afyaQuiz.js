@@ -53,7 +53,11 @@ router.post("/", async (req, res) => {
     const relevance = parseRating(notaRelevancia);
     const didactics = parseRating(notaDidatica);
     const eventRating = parseRating(notaEvento);
-    const ratings = [clarity, relevance, didactics, eventRating];
+    const ratings =
+      origem === "afya"
+        ? [clarity, relevance, didactics, eventRating]
+        : [relevance, didactics, eventRating];
+
     if (
       momento === "pos" &&
       ratings.some(
@@ -61,7 +65,10 @@ router.post("/", async (req, res) => {
           !Number.isInteger(rating) || rating < 0 || rating > 10,
       )
     ) {
-      return res.status(400).json({ error: "Selecione as quatro notas de 0 a 10." });
+      const requiredCount = origem === "afya" ? 4 : 3;
+      return res.status(400).json({
+        error: `Selecione as ${requiredCount} notas de 0 a 10.`,
+      });
     }
 
     await AfyaQuizResponse.create({
