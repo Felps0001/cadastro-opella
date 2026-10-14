@@ -388,7 +388,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                   <p>Sua participação foi registrada.</p>
                   <a
                     className="btn btn--primary"
-                    href="https://we.tl/t-UGNUZG0tA1kirOHr"
+                    href="https://we.tl/t-pxHpHTjYqyJGihQe"
                     target="_blank"
                     rel="noreferrer"
                   >
