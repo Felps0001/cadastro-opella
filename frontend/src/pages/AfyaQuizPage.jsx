@@ -2,13 +2,6 @@ import { useState } from "react";
 import Logo from "../components/Logo.jsx";
 import { createAfyaQuizResponse, createSymposiumQuestion } from "../api.js";
 
-const presentationFiles = import.meta.glob("../components/*2026*.pptx", {
-  eager: true,
-  query: "?url",
-  import: "default",
-});
-const presentationUrl = Object.values(presentationFiles)[0];
-
 const PRE_QUESTIONS = [
   {
     question:
@@ -361,7 +354,12 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
               questionComplete ? (
                 <div className="center-col" style={{ gap: "1rem", marginTop: "1.5rem" }}>
                   <p>Sua participação foi registrada.</p>
-                  <a className="btn btn--primary" href={presentationUrl} download="apresentacao-simposio-sbp-2026.pptx">
+                  <a
+                    className="btn btn--primary"
+                    href="https://we.tl/t-UGNUZG0tA1kirOHr"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Baixar apresentação
                   </a>
                 </div>
