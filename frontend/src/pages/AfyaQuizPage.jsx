@@ -1,6 +1,13 @@
 import { useState } from "react";
 import Logo from "../components/Logo.jsx";
-import { createAfyaQuizResponse } from "../api.js";
+import { createAfyaQuizResponse, createSymposiumQuestion } from "../api.js";
+
+const presentationFiles = import.meta.glob("../components/*2026*.pptx", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+const presentationUrl = Object.values(presentationFiles)[0];
 
 const PRE_QUESTIONS = [
   {
@@ -163,6 +170,11 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [questionEmail, setQuestionEmail] = useState("");
+  const [question, setQuestion] = useState("");
+  const [questionComplete, setQuestionComplete] = useState(false);
+  const [questionLoading, setQuestionLoading] = useState(false);
+  const [questionError, setQuestionError] = useState("");
   const questions = momento === "pre" ? PRE_QUESTIONS : POST_QUESTIONS;
 
   function selectMoment(value) {
@@ -284,6 +296,37 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
     }
   }
 
+  async function handleQuestionSubmit(event) {
+    event.preventDefault();
+    const email = questionEmail.trim();
+    const text = question.trim();
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setQuestionError("Informe um e-mail válido.");
+      return;
+    }
+    if (!email && !text) {
+      setQuestionComplete(true);
+      return;
+    }
+
+    setQuestionLoading(true);
+    setQuestionError("");
+    try {
+      await createSymposiumQuestion({ email, question: text });
+      setQuestionComplete(true);
+    } catch (requestError) {
+      setQuestionError(requestError.message || "Não foi possível enviar. Tente novamente.");
+    } finally {
+      setQuestionLoading(false);
+    }
+  }
+
+  function skipQuestion() {
+    setQuestionError("");
+    setQuestionComplete(true);
+  }
+
   const totalSteps = momento === "pos" ? questions.length + POST_RATINGS.length : questions.length;
   const isLastStep = currentStep === totalSteps - 1;
   const progress = momento ? ((currentStep + 1) / totalSteps) * 100 : 0;
@@ -314,6 +357,51 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
             <span className="quiz-success__mark">✓</span>
             <h2>Resposta enviada</h2>
             <p>Obrigado por participar do {isDedicatedPage ? "simpósio" : "aula"}.</p>
+            {isDedicatedPage && momento === "pos" && (
+              questionComplete ? (
+                <div className="center-col" style={{ gap: "1rem", marginTop: "1.5rem" }}>
+                  <p>Sua participação foi registrada.</p>
+                  <a className="btn btn--primary" href={presentationUrl} download="apresentacao-simposio-sbp-2026.pptx">
+                    Baixar apresentação
+                  </a>
+                </div>
+              ) : (
+                <form className="afya-quiz" onSubmit={handleQuestionSubmit} noValidate style={{ width: "100%", marginTop: "1.5rem" }}>
+                  <h3 className="quiz-section-title">Tem alguma pergunta?</h3>
+                  <p className="quiz-identification__intro">Os dois campos são opcionais. Depois, você poderá baixar a apresentação.</p>
+                  <div className="field">
+                    <label htmlFor="symposium-question-email">E-mail (opcional)</label>
+                    <input
+                      id="symposium-question-email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      value={questionEmail}
+                      onChange={(event) => setQuestionEmail(event.target.value)}
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="symposium-question">Sua pergunta (opcional)</label>
+                    <textarea
+                      id="symposium-question"
+                      rows="4"
+                      maxLength={3000}
+                      value={question}
+                      onChange={(event) => setQuestion(event.target.value)}
+                    />
+                  </div>
+                  {questionError && <div className="error-msg">{questionError}</div>}
+                  <div className="form-nav quiz-nav">
+                    <button type="submit" className="btn btn--primary" disabled={questionLoading}>
+                      {questionLoading ? "Enviando..." : "Enviar e continuar"}
+                    </button>
+                    <button type="button" className="btn btn--ghost" onClick={skipQuestion} disabled={questionLoading}>
+                      Pular
+                    </button>
+                  </div>
+                </form>
+              )
+            )}
           </div>
         ) : (
           <form className="card afya-quiz" onSubmit={handleFormSubmit} noValidate>
