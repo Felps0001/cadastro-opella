@@ -76,18 +76,26 @@ const POST_RATINGS = [
   {
     key: "clarity",
     label: "4. Como você avalia a clareza e objetividade da apresentação?",
+    minLabel: "Muito ruim",
+    maxLabel: "Excelente",
   },
   {
     key: "relevance",
     label: "5. O conteúdo apresentado foi relevante para sua prática clínica?",
+    minLabel: "Nada relevante",
+    maxLabel: "Extremamente relevante",
   },
   {
     key: "didactics",
     label: "6. O que você achou da didática dos palestrantes?",
+    minLabel: "Muito ruim",
+    maxLabel: "Excelente",
   },
   {
     key: "event",
-    label: "7. Como você avalia o evento no geral?",
+    label: "7. Como você avalia a OPELLA no geral do evento?",
+    minLabel: "Muito ruim",
+    maxLabel: "Excelente",
   },
 ];
 
@@ -105,7 +113,7 @@ function shuffleOptions(questions) {
   });
 }
 
-function Rating({ label, value, onChange }) {
+function Rating({ label, minLabel, maxLabel, value, onChange }) {
   return (
     <div className="quiz-rating">
       <p className="quiz-question__title">{label}</p>
@@ -123,8 +131,8 @@ function Rating({ label, value, onChange }) {
         ))}
       </div>
       <div className="nps__legend">
-        <span>0 — Nada provável</span>
-        <span>10 — Extremamente provável</span>
+        <span>0 — {minLabel}</span>
+        <span>10 — {maxLabel}</span>
       </div>
     </div>
   );
@@ -464,6 +472,8 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                     {currentStep === 3 && (
                       <Rating
                         label={POST_RATINGS[0].label}
+                        minLabel={POST_RATINGS[0].minLabel}
+                        maxLabel={POST_RATINGS[0].maxLabel}
                         value={clarity}
                         onChange={setClarity}
                       />
@@ -471,6 +481,8 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                     {currentStep === 4 && (
                       <Rating
                         label={POST_RATINGS[1].label}
+                        minLabel={POST_RATINGS[1].minLabel}
+                        maxLabel={POST_RATINGS[1].maxLabel}
                         value={relevance}
                         onChange={setRelevance}
                       />
@@ -478,6 +490,8 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                     {currentStep === 5 && (
                       <Rating
                         label={POST_RATINGS[2].label}
+                        minLabel={POST_RATINGS[2].minLabel}
+                        maxLabel={POST_RATINGS[2].maxLabel}
                         value={didactics}
                         onChange={setDidactics}
                       />
@@ -485,6 +499,8 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                     {currentStep === 6 && (
                       <Rating
                         label={POST_RATINGS[3].label}
+                        minLabel={POST_RATINGS[3].minLabel}
+                        maxLabel={POST_RATINGS[3].maxLabel}
                         value={eventRating}
                         onChange={setEventRating}
                       />
