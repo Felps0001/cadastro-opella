@@ -4,22 +4,22 @@ import { staffListAfyaQuizResponses } from "../api.js";
 
 const PRE_ANSWERS = [
   {
-    A: "Atua promovendo redução inicial da temperatura, sem diferenças na manutenção do efeito, apenas para febre baixa ao longo do tempo.",
-    B: "Apresenta eficácia semelhante aos demais antitérmicos, sendo escolhida principalmente para casos de febre moderada e febre alta e em casos de dores leves.",
-    C: "Proporciona maior controle da febre, manutenção da temperatura normalizada por mais tempo e elevada eficácia, sendo recomendada para todos os níveis de febre e dor.",
-    D: "Seu principal diferencial é a posologia de uma gota por kilo. para potencializar o controle da febre alta e dores intensas.",
+    A: "Reduz inicialmente a temperatura, sem maior manutenção do efeito, apenas em febre baixa.",
+    B: "Tem eficácia semelhante aos demais, sendo escolhida sobretudo para febre moderada ou alta e dores leves.",
+    C: "Oferece maior controle da febre, efeito mais duradouro e alta eficácia em todos os níveis de febre e dor.",
+    D: "Seu diferencial é a dose de uma gota por quilo para febre alta e dores intensas.",
   },
   {
-    A: "Promove sedação para melhorar o descanso e o controle dos sintomas.",
-    B: "Apresenta maior penetração no sistema nervoso central, aumentando a eficácia clínica.",
-    C: "Controla os sintomas alérgicos preservando cognição, atenção e desempenho diário por ser verdadeiramente não sedativa e ter mínima penetração cerebral.",
-    D: "Possui efeito anticolinérgico mais intenso, contribuindo para o controle da rinorreia.",
+    A: "Maior sedação, favorecendo o repouso sem comprometer a atenção diurna.",
+    B: "Maior penetração cerebral, ampliando o controle dos sintomas sem efeitos cognitivos.",
+    C: "Controle dos sintomas com preservação da cognição e da atenção, devido à mínima penetração cerebral e ao perfil não sedativo.",
+    D: "Maior efeito anticolinérgico, reduzindo a rinorreia com menos eventos adversos.",
   },
   {
-    A: "Qualquer probiótico pode ser utilizado, pois os efeitos são semelhantes entre as diferentes cepas.",
-    B: "O resultado clínico depende exclusivamente da concentração de UFC.",
-    C: "As evidências de eficácia são específicas para determinadas cepas, como B. clausii O/C, SIN, N/R e T, presentes em Enterogermina®.",
-    D: "Combinações com maior número de cepas são sempre superiores às formulações com menos cepas.",
+    A: "Escolher qualquer espécie do mesmo gênero das cepas estudadas.",
+    B: "Priorizar apenas a maior concentração de UFC, independentemente das cepas.",
+    C: "Escolher cepas com eficácia demonstrada, como B. clausii O/C, SIN, N/R e T.",
+    D: "Preferir formulações multicepas, pois mais cepas garantem superioridade clínica.",
   },
 ];
 
@@ -78,10 +78,25 @@ function csvEscape(value) {
   return /[";\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-function buildCsv(rows, congresso = false) {
-  const header = COLUMNS.map((column) => csvEscape(column.label)).join(";");
+function columnsFor(congresso) {
+  if (!congresso) return COLUMNS;
+
+  return COLUMNS
+    .filter((column) => column.key !== "notaClareza")
+    .map((column) => ({
+      ...column,
+      label: {
+        notaRelevancia: "Recomendação do conteúdo",
+        notaDidatica: "Recomendação do palestrante",
+        notaEvento: "Recomendação do evento",
+      }[column.key] || column.label,
+    }));
+}
+
+function buildCsv(rows, columns, congresso = false) {
+  const header = columns.map((column) => csvEscape(column.label)).join(";");
   const lines = rows.map((row) =>
-    COLUMNS.map((column) => csvEscape(cellValue(row, column, congresso))).join(";"),
+    columns.map((column) => csvEscape(cellValue(row, column, congresso))).join(";"),
   );
   return "\uFEFF" + [header, ...lines].join("\r\n");
 }
@@ -129,7 +144,7 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
   }, [momentFilter, query, rows]);
 
   function downloadCsv() {
-    const blob = new Blob([buildCsv(filtered, congresso)], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([buildCsv(filtered, columns, congresso)], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -142,6 +157,7 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
 
   const preCount = rows.filter((row) => row.momento === "pre").length;
   const postCount = rows.filter((row) => row.momento === "pos").length;
+  const columns = columnsFor(congresso);
 
   return (
     <div className="admin-page">
@@ -203,13 +219,13 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
             <table className="admin-table admin-table--afya">
               <thead>
                 <tr>
-                  {COLUMNS.map((column) => <th key={column.key}>{column.label}</th>)}
+                  {columns.map((column) => <th key={column.key}>{column.label}</th>)}
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((row) => (
                   <tr key={row.id}>
-                    {COLUMNS.map((column) => (
+                    {columns.map((column) => (
                       <td
                         key={column.key}
                         className={column.answerIndex !== undefined ? "admin-answer" : ""}

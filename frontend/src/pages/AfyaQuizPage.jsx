@@ -5,67 +5,67 @@ import { createAfyaQuizResponse, createSymposiumQuestion } from "../api.js";
 const PRE_QUESTIONS = [
   {
     question:
-      "Em caso de febre que necessitam de tratamento antipirético, qual diferencial torna a dipirona (Novalgina®) uma escolha preferencial em relação aos outros antitérmicos amplamente utilizados?",
+      "Em casos que exigem antitérmico, qual diferencial favorece a dipirona (Novalgina®) frente a outros antitérmicos?",
     options: [
       {
         id: "A",
-        text: "Atua promovendo redução inicial da temperatura, sem diferenças na manutenção do efeito, apenas para febre baixa ao longo do tempo.",
+        text: "Reduz inicialmente a temperatura, sem maior manutenção do efeito, apenas em febre baixa.",
       },
       {
         id: "B",
-        text: "Apresenta eficácia semelhante aos demais antitérmicos, sendo escolhida principalmente para casos de febre moderada e febre alta e em casos de dores leves.",
+        text: "Tem eficácia semelhante aos demais, sendo escolhida sobretudo para febre moderada ou alta e dores leves.",
       },
       {
         id: "C",
-        text: "Proporciona maior controle da febre, manutenção da temperatura normalizada por mais tempo e elevada eficácia, sendo recomendada para todos os níveis de febre e dor.",
+        text: "Oferece maior controle da febre, efeito mais duradouro e alta eficácia em todos os níveis de febre e dor.",
       },
       {
         id: "D",
-        text: "Seu principal diferencial é a posologia de uma gota por kilo. para potencializar o controle da febre alta e dores intensas.",
+        text: "Seu diferencial é a dose de uma gota por quilo para febre alta e dores intensas.",
       },
     ],
   },
   {
     question:
-      "Em crianças com rinite alérgica ou urticária que necessitam de tratamento anti-histamínico, qual diferencial torna a fexofenadina (Allegra®) uma escolha preferencial em relação aos anti-histamínicos de 1ª geração?",
+      "Em crianças com rinite alérgica ou urticária, qual característica favorece a fexofenadina (Allegra®) frente aos anti-histamínicos de 1ª geração?",
     options: [
       {
         id: "A",
-        text: "Promove sedação para melhorar o descanso e o controle dos sintomas.",
+        text: "Maior sedação, favorecendo o repouso sem comprometer a atenção diurna.",
       },
       {
         id: "B",
-        text: "Apresenta maior penetração no sistema nervoso central, aumentando a eficácia clínica.",
+        text: "Maior penetração cerebral, ampliando o controle dos sintomas sem efeitos cognitivos.",
       },
       {
         id: "C",
-        text: "Controla os sintomas alérgicos preservando cognição, atenção e desempenho diário por ser verdadeiramente não sedativa e ter mínima penetração cerebral.",
+        text: "Controle dos sintomas com preservação da cognição e da atenção, devido à mínima penetração cerebral e ao perfil não sedativo.",
       },
       {
         id: "D",
-        text: "Possui efeito anticolinérgico mais intenso, contribuindo para o controle da rinorreia.",
+        text: "Maior efeito anticolinérgico, reduzindo a rinorreia com menos eventos adversos.",
       },
     ],
   },
   {
     question:
-      "Qual das afirmações sobre o uso de probióticos na prevenção da diarreia associada a antibióticos é a mais correta?",
+      "Para prevenir diarreia associada a antibióticos, qual critério é mais consistente com as evidências?",
     options: [
       {
         id: "A",
-        text: "Qualquer probiótico pode ser utilizado, pois os efeitos são semelhantes entre as diferentes cepas.",
+        text: "Escolher qualquer espécie do mesmo gênero das cepas estudadas.",
       },
       {
         id: "B",
-        text: "O resultado clínico depende exclusivamente da concentração de UFC.",
+        text: "Priorizar apenas a maior concentração de UFC, independentemente das cepas.",
       },
       {
         id: "C",
-        text: "As evidências de eficácia são específicas para determinadas cepas, como B. clausii O/C, SIN, N/R e T, presentes em Enterogermina®.",
+        text: "Escolher cepas com eficácia demonstrada, como B. clausii O/C, SIN, N/R e T.",
       },
       {
         id: "D",
-        text: "Combinações com maior número de cepas são sempre superiores às formulações com menos cepas.",
+        text: "Preferir formulações multicepas, pois mais cepas garantem superioridade clínica.",
       },
     ],
   },
@@ -98,6 +98,24 @@ const POST_RATINGS = [
     maxLabel: "Excelente",
   },
 ];
+const CONGRESS_POST_RATINGS = [
+  {
+    key: "contentRecommendation",
+    label: "De 0 a 10, qual a probabilidade de você recomendar este conteúdo a um colega para a prática clínica?",
+  },
+  {
+    key: "speakerRecommendation",
+    label: "De 0 a 10, qual a probabilidade de você recomendar uma aula deste palestrante a um colega?",
+  },
+  {
+    key: "eventRecommendation",
+    label: "De 0 a 10, qual a probabilidade de você recomendar este evento a um colega?",
+  },
+].map((question) => ({
+  ...question,
+  minLabel: "Não recomendaria de forma alguma",
+  maxLabel: "Recomendaria com certeza",
+}));
 
 function shuffleOptions(questions) {
   return questions.map(({ options }) => {
@@ -238,7 +256,9 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
       setError("Selecione uma alternativa para continuar.");
       return;
     }
-    const ratingsByStep = [clarity, relevance, didactics, eventRating];
+    const ratingsByStep = isDedicatedPage
+      ? [relevance, didactics, eventRating]
+      : [clarity, relevance, didactics, eventRating];
     if (
       currentStep >= questions.length &&
       ratingsByStep[currentStep - questions.length] === null
@@ -255,10 +275,10 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
       setError("Responda as três perguntas do quiz.");
       return;
     }
-    if (
-      momento === "pos" &&
-      [clarity, relevance, didactics, eventRating].some((rating) => rating === null)
-    ) {
+    const requiredRatings = isDedicatedPage
+      ? [relevance, didactics, eventRating]
+      : [clarity, relevance, didactics, eventRating];
+    if (momento === "pos" && requiredRatings.some((rating) => rating === null)) {
       setError("Selecione uma nota de 0 a 10 em todas as avaliações.");
       return;
     }
@@ -275,7 +295,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
         campus: isDedicatedPage ? "" : participant.campus.trim(),
         lgpdConsent: isDedicatedPage ? false : lgpdConsent,
         respostas: answers,
-        notaClareza: momento === "pos" ? clarity : null,
+        notaClareza: momento === "pos" && !isDedicatedPage ? clarity : null,
         notaRelevancia: momento === "pos" ? relevance : null,
         notaDidatica: momento === "pos" ? didactics : null,
         notaEvento: momento === "pos" ? eventRating : null,
@@ -320,7 +340,16 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
     setQuestionComplete(true);
   }
 
-  const totalSteps = momento === "pos" ? questions.length + POST_RATINGS.length : questions.length;
+  const postRatings = isDedicatedPage ? CONGRESS_POST_RATINGS : POST_RATINGS;
+  const ratingValues = isDedicatedPage
+    ? [relevance, didactics, eventRating]
+    : [clarity, relevance, didactics, eventRating];
+  const ratingSetters = isDedicatedPage
+    ? [setRelevance, setDidactics, setEventRating]
+    : [setClarity, setRelevance, setDidactics, setEventRating];
+  const activeRatingIndex = currentStep - questions.length;
+  const activeRating = postRatings[activeRatingIndex];
+  const totalSteps = momento === "pos" ? questions.length + postRatings.length : questions.length;
   const isLastStep = currentStep === totalSteps - 1;
   const progress = momento ? ((currentStep + 1) / totalSteps) * 100 : 0;
   const currentQuestion = questions[currentStep];
@@ -517,7 +546,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
               <>
                 <div className="quiz-progress" aria-label={`Etapa ${currentStep + 1} de ${totalSteps}`}>
                   <div className="quiz-progress__meta">
-                    <span>Questionário {momento === "pre" ? "pré" : "pós"}-aula</span>
+                    <span>Questionário {momento === "pre" ? "pré" : "pós"}-{isDedicatedPage ? "simpósio" : "aula"}</span>
                     <span>{currentStep + 1} de {totalSteps}</span>
                   </div>
                   <div className="quiz-progress__track">
@@ -554,41 +583,17 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                 )}
 
                 {momento === "pos" && currentStep >= questions.length && (
-                  <section className="quiz-evaluation" aria-label="Avaliação da aula">
-                    {currentStep === 3 && (
+                  <section
+                    className="quiz-evaluation"
+                    aria-label={`Avaliação do ${isDedicatedPage ? "simpósio" : "aula"}`}
+                  >
+                    {activeRating && (
                       <Rating
-                        label={POST_RATINGS[0].label}
-                        minLabel={POST_RATINGS[0].minLabel}
-                        maxLabel={POST_RATINGS[0].maxLabel}
-                        value={clarity}
-                        onChange={setClarity}
-                      />
-                    )}
-                    {currentStep === 4 && (
-                      <Rating
-                        label={POST_RATINGS[1].label}
-                        minLabel={POST_RATINGS[1].minLabel}
-                        maxLabel={POST_RATINGS[1].maxLabel}
-                        value={relevance}
-                        onChange={setRelevance}
-                      />
-                    )}
-                    {currentStep === 5 && (
-                      <Rating
-                        label={POST_RATINGS[2].label}
-                        minLabel={POST_RATINGS[2].minLabel}
-                        maxLabel={POST_RATINGS[2].maxLabel}
-                        value={didactics}
-                        onChange={setDidactics}
-                      />
-                    )}
-                    {currentStep === 6 && (
-                      <Rating
-                        label={POST_RATINGS[3].label}
-                        minLabel={POST_RATINGS[3].minLabel}
-                        maxLabel={POST_RATINGS[3].maxLabel}
-                        value={eventRating}
-                        onChange={setEventRating}
+                        label={activeRating.label}
+                        minLabel={activeRating.minLabel}
+                        maxLabel={activeRating.maxLabel}
+                        value={ratingValues[activeRatingIndex]}
+                        onChange={ratingSetters[activeRatingIndex]}
                       />
                     )}
                   </section>
