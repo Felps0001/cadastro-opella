@@ -107,7 +107,7 @@ export default function CongressJantarPage() {
       <header className="hero afya-hero">
         <div className="container">
           <Logo variant="light" />
-          <h1 className="hero__tagline">Congresso</h1>
+          <h1 className="hero__tagline">Super El Niño: Você está preparando para os impactos na saúde infantil?</h1>
           <p className="hero__sub">Avalie sua experiência no evento.</p>
         </div>
       </header>

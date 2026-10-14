@@ -52,12 +52,13 @@ function answerText(row, index) {
   return PRE_ANSWERS[index]?.[answer] || "";
 }
 
-function cellValue(row, column) {
+function cellValue(row, column, congresso = false) {
   if (column.answerIndex !== undefined) {
     return answerText(row, column.answerIndex);
   }
   if (column.key === "momento") {
-    return row.momento === "pos" ? "Pós-aula" : "Pré-aula";
+    const phase = row.momento === "pos" ? "pós" : "pré";
+    return `${phase}-${congresso ? "simpósio" : "aula"}`;
   }
   if (column.key === "lgpdConsent") return row.lgpdConsent ? "Sim" : "Não";
   if (column.key === "score") {
@@ -77,10 +78,10 @@ function csvEscape(value) {
   return /[";\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-function buildCsv(rows) {
+function buildCsv(rows, congresso = false) {
   const header = COLUMNS.map((column) => csvEscape(column.label)).join(";");
   const lines = rows.map((row) =>
-    COLUMNS.map((column) => csvEscape(cellValue(row, column))).join(";"),
+    COLUMNS.map((column) => csvEscape(cellValue(row, column, congresso))).join(";"),
   );
   return "\uFEFF" + [header, ...lines].join("\r\n");
 }
@@ -128,7 +129,7 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
   }, [momentFilter, query, rows]);
 
   function downloadCsv() {
-    const blob = new Blob([buildCsv(filtered)], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([buildCsv(filtered, congresso)], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -146,13 +147,13 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
     <div className="admin-page">
       <div className="admin-head container">
         <Logo variant="light" />
-        <h1 className="admin-title">{congresso ? "Cadastros Congresso de Pediatria" : "Cadastros Afya"}</h1>
+        <h1 className="admin-title">{congresso ? "Cadastros do Simpósio Super El Niño" : "Cadastros Afya"}</h1>
         <p className="admin-sub">
           {loading
             ? "Carregando..."
             : momentFilter === "all"
               ? `${rows.length} resposta(s) • ${preCount} pré • ${postCount} pós`
-              : `${filtered.length} resposta(s) de ${momentFilter === "pre" ? "pré" : "pós"}-aula • ${rows.length} no total`}
+              : `${filtered.length} resposta(s) de ${momentFilter === "pre" ? "pré" : "pós"}-${congresso ? "simpósio" : "aula"} • ${rows.length} no total`}
         </p>
 
         <div className="admin-toolbar">
@@ -164,8 +165,8 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
               onChange={(event) => setMomentFilter(event.target.value)}
             >
               <option value="all">Todos os formulários</option>
-              <option value="pre">Pré-aula</option>
-              <option value="pos">Pós-aula</option>
+              <option value="pre">{congresso ? "Pré-simpósio" : "Pré-aula"}</option>
+              <option value="pos">{congresso ? "Pós-simpósio" : "Pós-aula"}</option>
             </select>
           )}
           <input
@@ -194,7 +195,7 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
           <p className="admin-empty">
             {momentFilter === "all"
               ? "Nenhum cadastro do Congresso de Pediatria encontrado."
-              : `Nenhum cadastro de ${momentFilter === "pre" ? "pré" : "pós"}-aula encontrado.`}
+              : `Nenhum cadastro de ${momentFilter === "pre" ? "pré" : "pós"}-${congresso ? "simpósio" : "aula"} encontrado.`}
           </p>
         )}
         {!error && filtered.length > 0 && (
@@ -213,7 +214,7 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
                         key={column.key}
                         className={column.answerIndex !== undefined ? "admin-answer" : ""}
                       >
-                        {cellValue(row, column)}
+                        {cellValue(row, column, congresso)}
                       </td>
                     ))}
                   </tr>

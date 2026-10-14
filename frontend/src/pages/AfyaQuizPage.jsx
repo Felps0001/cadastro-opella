@@ -289,12 +289,12 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
           {!isDedicatedPage && <p className="afya-kicker">AFYA</p>}
           <h1 className="hero__tagline">
             {isDedicatedPage
-              ? `Questionário ${momento === "pre" ? "Pré-aula" : "Pós-aula"}`
+              ? "Super El Niño: Você está preparando para os impactos na saúde infantil?"
               : "Quiz Pré e Pós-Aula"}
           </h1>
           <p className="hero__sub">
             {isDedicatedPage
-              ? `Responda ao questionário ${momento === "pre" ? "pré" : "pós"}-aula.`
+              ? `Questionário ${momento === "pre" ? "pré" : "pós"}-simpósio.`
               : "Selecione o momento e registre suas respostas."}
           </p>
         </div>
@@ -305,7 +305,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
           <div className="card center-col quiz-success" role="status">
             <span className="quiz-success__mark">✓</span>
             <h2>Resposta enviada</h2>
-            <p>Obrigado por participar da aula.</p>
+            <p>Obrigado por participar do {isDedicatedPage ? "simpósio" : "aula"}.</p>
           </div>
         ) : (
           <form className="card afya-quiz" onSubmit={handleFormSubmit} noValidate>
@@ -339,7 +339,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                   Identificação
                 </h2>
                 <p className="quiz-identification__intro">
-                  Preencha seus dados para acessar o questionário {momento === "pre" ? "pré" : "pós"}-aula.
+                  Preencha seus dados para acessar o questionário {momento === "pre" ? "pré" : "pós"}-{isDedicatedPage ? "simpósio" : "aula"}.
                 </p>
 
                 <div className="field">
