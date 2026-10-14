@@ -119,7 +119,8 @@ const CONGRESS_POST_RATINGS = [
 
 function shuffleOptions(questions) {
   return questions.map(({ options }) => {
-    const shuffled = [...options];
+    const correctOption = options.find((option) => option.id === "C");
+    const shuffled = options.filter((option) => option.id !== "C");
     for (let index = shuffled.length - 1; index > 0; index -= 1) {
       const randomIndex = Math.floor(Math.random() * (index + 1));
       [shuffled[index], shuffled[randomIndex]] = [
@@ -127,7 +128,9 @@ function shuffleOptions(questions) {
         shuffled[index],
       ];
     }
-    return shuffled;
+    return correctOption
+      ? [...shuffled.slice(0, 2), correctOption, shuffled[2]]
+      : shuffled;
   });
 }
 
@@ -564,7 +567,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                       {currentQuestion.question}
                     </legend>
                     <div className="quiz-options">
-                      {shuffledOptions[currentStep].map((option) => (
+                      {shuffledOptions[currentStep].map((option, optionIndex) => (
                         <button
                           type="button"
                           key={option.id}
@@ -573,7 +576,7 @@ export default function AfyaQuizPage({ momentoInicial = "" }) {
                           onClick={() => selectAnswer(currentStep, option.id)}
                         >
                           <span className="quiz-option__letter">
-                            {option.id}
+                            {String.fromCharCode(65 + optionIndex)}
                           </span>
                           <span>{option.text}</span>
                         </button>
