@@ -1,32 +1,22 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import pagina1Esquerda from "../components/Pagina_1_Esquerda.jpg";
 import pagina1Direita from "../components/Pagina_1_Direita.jpg";
 import pagina2Esquerda from "../components/Pagina_2_Esquerda.jpg";
 import pagina2Direita from "../components/Pagina_2_Direita.jpg";
 
-const SPREADS = [
-  { left: pagina1Esquerda, right: pagina1Direita },
-  { left: pagina2Esquerda, right: pagina2Direita },
+const PAGE_IMAGES = [
+  pagina1Esquerda,
+  pagina1Direita,
+  pagina2Esquerda,
+  pagina2Direita,
 ];
 
 export default function CartilhaPage() {
   const [pageIndex, setPageIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth < 768 : false);
 
-  useEffect(() => {
-    function handleResize() {
-      setIsMobile(window.innerWidth < 768);
-    }
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const spread = SPREADS[pageIndex];
-  const activeImage = isMobile ? spread.right : null;
-
+  const currentImage = PAGE_IMAGES[pageIndex];
   const canGoBack = pageIndex > 0;
-  const canGoNext = pageIndex < SPREADS.length - 1;
+  const canGoNext = pageIndex < PAGE_IMAGES.length - 1;
 
   return (
     <div
@@ -53,46 +43,17 @@ export default function CartilhaPage() {
           boxSizing: "border-box",
         }}
       >
-        {isMobile ? (
-          <img
-            src={activeImage}
-            alt="Cartilha página"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-              display: "block",
-              background: "#111",
-            }}
-          />
-        ) : (
-          <>
-            <img
-              src={spread.left}
-              alt="Cartilha página esquerda"
-              style={{
-                flex: 1,
-                width: "50%",
-                height: "100%",
-                objectFit: "cover",
-                display: "block",
-                background: "#111",
-              }}
-            />
-            <img
-              src={spread.right}
-              alt="Cartilha página direita"
-              style={{
-                flex: 1,
-                width: "50%",
-                height: "100%",
-                objectFit: "cover",
-                display: "block",
-                background: "#111",
-              }}
-            />
-          </>
-        )}
+        <img
+          src={currentImage}
+          alt="Cartilha página"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            display: "block",
+            background: "#111",
+          }}
+        />
       </div>
 
       <div
@@ -135,12 +96,12 @@ export default function CartilhaPage() {
             textTransform: "uppercase",
           }}
         >
-          {pageIndex + 1} / {SPREADS.length}
+          {pageIndex + 1} / {PAGE_IMAGES.length}
         </span>
 
         <button
           type="button"
-          onClick={() => setPageIndex((current) => Math.min(current + 1, SPREADS.length - 1))}
+          onClick={() => setPageIndex((current) => Math.min(current + 1, PAGE_IMAGES.length - 1))}
           disabled={!canGoNext}
           style={{
             opacity: canGoNext ? 1 : 0.4,
