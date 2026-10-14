@@ -3,6 +3,19 @@ import { CongressJantarNote } from "../models/CongressJantarNote.js";
 
 const router = Router();
 
+router.get("/", async (_req, res) => {
+  try {
+    const notes = await CongressJantarNote.find({ origem: "congresso-jantar" })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.json(notes);
+  } catch (err) {
+    console.error("[congresso-jantar-notas] erro ao listar:", err);
+    return res.status(500).json({ error: "Erro ao listar as notas do jantar." });
+  }
+});
+
 router.post("/", async (req, res) => {
   try {
     const { origem = "congresso-jantar", momento = "pos", relevancia, didatica, evento } = req.body || {};

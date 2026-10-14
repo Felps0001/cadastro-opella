@@ -15,6 +15,7 @@ import CongressJantarPage from "./pages/CongressJantarPage.jsx";
 import QuestionSubmitPage from "./pages/QuestionSubmitPage.jsx";
 import QuestionReadPage from "./pages/QuestionReadPage.jsx";
 import CartilhaPage from "./pages/CartilhaPage.jsx";
+import JantarNotesPage from "./pages/JantarNotesPage.jsx";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
       <Route path="/congresso-pediatria-pos" element={<AfyaQuizPage momentoInicial="pos" />} />
       <Route path="/congresso-jantar" element={<CongressJantarPage />} />
       <Route path="/congresso-pediatria-jantar" element={<CongressJantarPage />} />
+      <Route path="/congresso-jantar-notas" element={<JantarNotesPage />} />
       <Route path="/cartilha" element={<CartilhaPage />} />
       <Route path="/perguntas-enviar" element={<QuestionSubmitPage />} />
       <Route path="/perguntas-ver" element={<QuestionReadPage />} />

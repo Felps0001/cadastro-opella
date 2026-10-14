@@ -53,6 +53,11 @@ export async function createCongressJantarNote(payload) {
   return handle(res);
 }
 
+export async function getCongressJantarNotes() {
+  const res = await fetch(`${API_URL}/api/congresso-jantar-notas`);
+  return handle(res);
+}
+
 export async function createMinasRegistration(payload) {
   const res = await fetch(`${API_URL}/api/minas-registrations`, {
     method: "POST",
