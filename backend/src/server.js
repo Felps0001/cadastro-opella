@@ -6,6 +6,7 @@ import { connectDB } from "./config/db.js";
 import registrationsRouter from "./routes/registrations.js";
 import staffRouter from "./routes/staff.js";
 import afyaQuizRouter from "./routes/afyaQuiz.js";
+import congressJantarNotesRouter from "./routes/congressJantarNotes.js";
 import minasRegistrationsRouter from "./routes/minasRegistrations.js";
 
 const app = express();
@@ -49,6 +50,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.use("/api/registrations", registerLimiter, registrationsRouter);
 app.use("/api/afya-quiz", registerLimiter, afyaQuizRouter);
+app.use("/api/congresso-jantar-notas", registerLimiter, congressJantarNotesRouter);
 app.use("/api/minas-registrations", registerLimiter, minasRegistrationsRouter);
 app.use("/api/staff", staffRouter);
 

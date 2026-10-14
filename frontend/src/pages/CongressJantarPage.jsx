@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Logo from "../components/Logo.jsx";
-import { createAfyaQuizResponse } from "../api.js";
+import { createAfyaQuizResponse, createCongressJantarNote } from "../api.js";
 
 const QUESTIONS = [
   {
@@ -69,20 +69,29 @@ export default function CongressJantarPage() {
     setError("");
 
     try {
-      await createAfyaQuizResponse({
-        origem: "congresso-pediatria",
-        momento: "pos",
-        nome: "",
-        crm: "",
-        email: "",
-        campus: "",
-        lgpdConsent: false,
-        respostas: ["C", "C", "C"],
-        notaClareza: null,
-        notaRelevancia: ratings.relevance,
-        notaDidatica: ratings.didactics,
-        notaEvento: ratings.event,
-      });
+      await Promise.all([
+        createAfyaQuizResponse({
+          origem: "congresso-pediatria",
+          momento: "pos",
+          nome: "",
+          crm: "",
+          email: "",
+          campus: "",
+          lgpdConsent: false,
+          respostas: ["C", "C", "C"],
+          notaClareza: null,
+          notaRelevancia: ratings.relevance,
+          notaDidatica: ratings.didactics,
+          notaEvento: ratings.event,
+        }),
+        createCongressJantarNote({
+          origem: "congresso-jantar",
+          momento: "pos",
+          relevancia: ratings.relevance,
+          didatica: ratings.didactics,
+          evento: ratings.event,
+        }),
+      ]);
 
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
