@@ -1183,6 +1183,35 @@ body {
   color: var(--muted);
   padding: 40px 0;
 }
+.afya-analysis {
+  margin-bottom: 24px;
+}
+.afya-analysis__title {
+  margin: 0 0 4px;
+  color: var(--opella-deep);
+  font-size: 18px;
+  font-weight: 800;
+}
+.afya-analysis__description {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.afya-analysis__paired {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--opella-deep);
+  background: #f1f6f0;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.afya-analysis__table .afya-analysis__answer {
+  min-width: 280px;
+  max-width: 440px;
+  white-space: normal;
+  line-height: 1.45;
+}
 .table-wrap {
   overflow-x: auto;
   background: var(--card);
