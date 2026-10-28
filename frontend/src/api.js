@@ -44,29 +44,6 @@ export async function createAfyaQuizResponse(payload) {
   return handle(res);
 }
 
-export async function createCongressJantarNote(payload) {
-  const res = await fetch(`${API_URL}/api/congresso-jantar-notas`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  return handle(res);
-}
-
-export async function getCongressJantarNotes() {
-  const res = await fetch(`${API_URL}/api/congresso-jantar-notas`);
-  return handle(res);
-}
-
-export async function createSymposiumQuestion(payload) {
-  const res = await fetch(`${API_URL}/api/symposium-questions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  return handle(res);
-}
-
 export async function createMinasRegistration(payload) {
   const res = await fetch(`${API_URL}/api/minas-registrations`, {
     method: "POST",

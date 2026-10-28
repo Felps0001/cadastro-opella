@@ -569,25 +569,6 @@ body {
 .minas-qr-ticket--photo {
   border-top-color: var(--opella-pink);
 }
-.minas-qr-ticket--student {
-  border-top: 0;
-  padding-top: 0;
-  overflow: hidden;
-}
-.minas-qr-ticket__student-brand {
-  display: grid;
-  min-height: 60px;
-  margin: 0 -16px 16px;
-  padding: 10px 8px;
-  place-items: center;
-  border-radius: 10px 10px 0 0;
-  background: var(--danger);
-  color: #fff;
-  font-size: 22px;
-  font-weight: 900;
-  line-height: 1.15;
-  text-align: center;
-}
 .minas-qr-ticket__head {
   display: flex;
   justify-content: space-between;
@@ -1182,35 +1163,6 @@ body {
   text-align: center;
   color: var(--muted);
   padding: 40px 0;
-}
-.afya-analysis {
-  margin-bottom: 24px;
-}
-.afya-analysis__title {
-  margin: 0 0 4px;
-  color: var(--opella-deep);
-  font-size: 18px;
-  font-weight: 800;
-}
-.afya-analysis__description {
-  margin: 0 0 14px;
-  color: var(--muted);
-  font-size: 13px;
-}
-.afya-analysis__paired {
-  margin-bottom: 14px;
-  padding: 12px 14px;
-  border-left: 3px solid var(--opella-deep);
-  background: #f1f6f0;
-  color: var(--ink);
-  font-size: 13px;
-  line-height: 1.5;
-}
-.afya-analysis__table .afya-analysis__answer {
-  min-width: 280px;
-  max-width: 440px;
-  white-space: normal;
-  line-height: 1.45;
 }
 .table-wrap {
   overflow-x: auto;

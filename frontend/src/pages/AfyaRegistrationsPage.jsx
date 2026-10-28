@@ -1,25 +1,26 @@
+import { AFYA_QUESTIONS, AFYA_CORRECT_ANSWERS } from "../afyaQuestions.js";
 import { useEffect, useMemo, useState } from "react";
 import Logo from "../components/Logo.jsx";
 import { staffListAfyaQuizResponses } from "../api.js";
 
 const PRE_ANSWERS = [
   {
-    A: "Reduz inicialmente a temperatura, sem maior manutenção do efeito, apenas em febre baixa.",
-    B: "Tem eficácia semelhante aos demais, sendo escolhida sobretudo para febre moderada ou alta e dores leves.",
-    C: "Oferece maior controle da febre, efeito mais duradouro e alta eficácia em todos os níveis de febre e dor.",
-    D: "Seu diferencial é a dose de uma gota por quilo para febre alta e dores intensas.",
+    A: "Aumento da produção de osteoprotegerina (OPG), reduzindo a atividade osteoclástica.",
+    B: "Redução do estradiol, com aumento da atividade de RANKL e da reabsorção óssea.",
+    C: "Diminuição da atividade osteoclástica por ação compensatória do PTH.",
+    D: "Aumento da absorção intestinal de cálcio independente da vitamina D.",
   },
   {
-    A: "Maior sedação, favorecendo o repouso sem comprometer a atenção diurna.",
-    B: "Maior penetração cerebral, ampliando o controle dos sintomas sem efeitos cognitivos.",
-    C: "Controle dos sintomas com preservação da cognição e da atenção, devido à mínima penetração cerebral e ao perfil não sedativo.",
-    D: "Maior efeito anticolinérgico, reduzindo a rinorreia com menos eventos adversos.",
+    A: "Pode ser utilizado preferencialmente em jejum por não depender da acidez gástrica.",
+    B: "Apresenta menor teor de cálcio elementar que o citrato de cálcio.",
+    C: "Possui elevado teor de cálcio elementar (40%) e boa eficácia quando administrado junto às refeições.",
+    D: "É o sal de escolha para pacientes bariátricas e usuárias crônicas de IBPs.",
   },
   {
-    A: "Escolher qualquer espécie do mesmo gênero das cepas estudadas.",
-    B: "Priorizar apenas a maior concentração de UFC, independentemente das cepas.",
-    C: "Escolher cepas com eficácia demonstrada, como B. clausii O/C, SIN, N/R e T.",
-    D: "Preferir formulações multicepas, pois mais cepas garantem superioridade clínica.",
+    A: "A maioria das mulheres brasileiras atinge a recomendação diária de cálcio apenas pela alimentação.",
+    B: "O consumo médio de cálcio no Brasil é suficiente para prevenir a perda óssea associada ao envelhecimento.",
+    C: "Como a calcemia geralmente permanece normal, não há necessidade de avaliar a ingestão alimentar de cálcio.",
+    D: "A ingestão média de cálcio no Brasil é inferior às recomendações, tornando fundamental investigar a dieta, pois o organismo pode mobilizar cálcio do esqueleto para manter a calcemia.",
   },
 ];
 
@@ -36,8 +37,7 @@ const COLUMNS = [
   { key: "score", label: "Acertos" },
   { key: "notaClareza", label: "Clareza" },
   { key: "notaRelevancia", label: "Relevância" },
-  { key: "notaDidatica", label: "Didática" },
-  { key: "notaEvento", label: "Evento" },
+  { key: "notaDidatica", label: "Aula geral" },
   { key: "createdAt", label: "Enviado em" },
 ];
 
@@ -49,20 +49,23 @@ function formatDate(value) {
 
 function answerText(row, index) {
   const answer = row.respostas?.[index];
-  return PRE_ANSWERS[index]?.[answer] || "";
+  return row.quizVersion !== "afya-2026-10-28"
+    ? PRE_ANSWERS[index]?.[answer] || ""
+    : AFYA_QUESTIONS[index]?.options.find((option) => option.id === answer)?.text || "";
 }
 
-function cellValue(row, column, congresso = false) {
+function cellValue(row, column) {
   if (column.answerIndex !== undefined) {
     return answerText(row, column.answerIndex);
   }
   if (column.key === "momento") {
-    const phase = row.momento === "pos" ? "pós" : "pré";
-    return `${phase}-${congresso ? "simpósio" : "aula"}`;
+    return row.momento === "pos" ? "Pós-aula" : "Pré-aula";
   }
   if (column.key === "lgpdConsent") return row.lgpdConsent ? "Sim" : "Não";
   if (column.key === "score") {
-    const correctAnswers = ["C", "C", "C"];
+    const correctAnswers = row.quizVersion !== "afya-2026-10-28"
+      ? ["B", "C", "D"]
+      : AFYA_CORRECT_ANSWERS;
     const score = (row.respostas || []).filter(
       (answer, index) => answer === correctAnswers[index],
     ).length;
@@ -78,70 +81,12 @@ function csvEscape(value) {
   return /[";\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-function columnsFor(congresso) {
-  if (!congresso) return COLUMNS;
-
-  return COLUMNS
-    .filter((column) => column.key !== "notaClareza")
-    .map((column) => ({
-      ...column,
-      label: {
-        notaRelevancia: "Recomendação do conteúdo",
-        notaDidatica: "Recomendação do palestrante",
-        notaEvento: "Recomendação do evento",
-      }[column.key] || column.label,
-    }));
-}
-
-function buildCsv(rows, columns, congresso = false) {
-  const header = columns.map((column) => csvEscape(column.label)).join(";");
+function buildCsv(rows) {
+  const header = COLUMNS.map((column) => csvEscape(column.label)).join(";");
   const lines = rows.map((row) =>
-    columns.map((column) => csvEscape(cellValue(row, column, congresso))).join(";"),
+    COLUMNS.map((column) => csvEscape(cellValue(row, column))).join(";"),
   );
   return "\uFEFF" + [header, ...lines].join("\r\n");
-}
-
-function formatPercent(count, total) {
-  if (!total) return "—";
-  return `${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format((count / total) * 100)}%`;
-}
-
-function formatPercentagePoint(value) {
-  const formatted = new Intl.NumberFormat("pt-BR", {
-    maximumFractionDigits: 1,
-    minimumFractionDigits: 1,
-  }).format(value);
-  return `${value > 0 ? "+" : ""}${formatted} p.p.`;
-}
-
-function participantKey(row) {
-  const crm = String(row.crm || "").replace(/[^a-z0-9]/gi, "").toLowerCase();
-  if (crm) return `crm:${crm}`;
-  const email = String(row.email || "").trim().toLowerCase();
-  return email ? `email:${email}` : "";
-}
-
-function latestResponse(current, candidate) {
-  if (!current) return candidate;
-  return new Date(candidate.createdAt || 0) > new Date(current.createdAt || 0)
-    ? candidate
-    : current;
-}
-
-function matchedResponses(rows) {
-  const byParticipant = new Map();
-  rows.forEach((row) => {
-    const key = participantKey(row);
-    if (!key) return;
-    const participant = byParticipant.get(key) || {};
-    participant[row.momento] = latestResponse(participant[row.momento], row);
-    byParticipant.set(key, participant);
-  });
-  return Array.from(byParticipant.values()).filter(({ pre, pos }) => pre && pos);
-}
-
-function correctAnswerCount(row) {
-  return (row.respostas || []).filter((answer) => answer === "C").length;
 }
 
 export default function AfyaRegistrationsPage({ congresso = false }) {
@@ -163,7 +108,8 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
       setError(
         requestError.status === 401
           ? "Token inválido. Verifique o VITE_STAFF_TOKEN no .env."
-          : requestError.message || "Não foi possível carregar os cadastros Afya.",
+          : requestError.message ||
+              "Não foi possível carregar os cadastros Afya.",
       );
     } finally {
       setLoading(false);
@@ -174,44 +120,26 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
     load();
   }, []);
 
-  const searchFiltered = useMemo(() => {
+  const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return rows.filter((row) => {
-      const matchesQuery = !normalizedQuery ||
+      const matchesMoment =
+        momentFilter === "all" || row.momento === momentFilter;
+      const matchesQuery =
+        !normalizedQuery ||
         [row.nome, row.crm, row.email, row.campus, row.momento]
           .filter(Boolean)
-          .some((value) => String(value).toLowerCase().includes(normalizedQuery));
-      return matchesQuery;
+          .some((value) =>
+            String(value).toLowerCase().includes(normalizedQuery),
+          );
+      return matchesMoment && matchesQuery;
     });
-  }, [query, rows]);
-
-  const filtered = useMemo(
-    () => searchFiltered.filter((row) => momentFilter === "all" || row.momento === momentFilter),
-    [momentFilter, searchFiltered],
-  );
-  const analysisPreRows = searchFiltered.filter((row) => row.momento === "pre");
-  const analysisPostRows = searchFiltered.filter((row) => row.momento === "pos");
-  const analysisRows = momentFilter === "all"
-    ? null
-    : momentFilter === "pre"
-      ? analysisPreRows
-      : analysisPostRows;
-  const paired = useMemo(() => matchedResponses(searchFiltered), [searchFiltered]);
-  const changedPairs = paired.filter(({ pre, pos }) =>
-    (pre.respostas || []).some((answer, index) => answer !== pos.respostas?.[index]),
-  ).length;
-  const improvedPairs = paired.filter(({ pre, pos }) =>
-    correctAnswerCount(pos) > correctAnswerCount(pre),
-  ).length;
-  const unchangedPairs = paired.filter(({ pre, pos }) =>
-    correctAnswerCount(pos) === correctAnswerCount(pre),
-  ).length;
-  const declinedPairs = paired.filter(({ pre, pos }) =>
-    correctAnswerCount(pos) < correctAnswerCount(pre),
-  ).length;
+  }, [momentFilter, query, rows]);
 
   function downloadCsv() {
-    const blob = new Blob([buildCsv(filtered, columns, congresso)], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([buildCsv(filtered)], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -224,32 +152,35 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
 
   const preCount = rows.filter((row) => row.momento === "pre").length;
   const postCount = rows.filter((row) => row.momento === "pos").length;
-  const columns = columnsFor(congresso);
 
   return (
     <div className="admin-page">
       <div className="admin-head container">
         <Logo variant="light" />
-        <h1 className="admin-title">{congresso ? "Cadastros do Simpósio Super El Niño" : "Cadastros Afya"}</h1>
+        <h1 className="admin-title">
+          {congresso ? "Cadastros Congresso de Pediatria" : "Cadastros Afya"}
+        </h1>
         <p className="admin-sub">
           {loading
             ? "Carregando..."
             : momentFilter === "all"
               ? `${rows.length} resposta(s) • ${preCount} pré • ${postCount} pós`
-              : `${filtered.length} resposta(s) de ${momentFilter === "pre" ? "pré" : "pós"}-${congresso ? "simpósio" : "aula"} • ${rows.length} no total`}
+              : `${filtered.length} resposta(s) de ${momentFilter === "pre" ? "pré" : "pós"}-aula • ${rows.length} no total`}
         </p>
 
         <div className="admin-toolbar">
-          <select
-            className="admin-search admin-form-filter"
-            aria-label="Filtrar por momento"
-            value={momentFilter}
-            onChange={(event) => setMomentFilter(event.target.value)}
-          >
-            <option value="all">Pré e pós (comparar)</option>
-            <option value="pre">{congresso ? "Pré-simpósio" : "Pré-aula"}</option>
-            <option value="pos">{congresso ? "Pós-simpósio" : "Pós-aula"}</option>
-          </select>
+          {congresso && (
+            <select
+              className="admin-search admin-form-filter"
+              aria-label="Selecionar formulário"
+              value={momentFilter}
+              onChange={(event) => setMomentFilter(event.target.value)}
+            >
+              <option value="all">Todos os formulários</option>
+              <option value="pre">Pré-aula</option>
+              <option value="pos">Pós-aula</option>
+            </select>
+          )}
           <input
             className="admin-search"
             type="search"
@@ -257,7 +188,11 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
-          <button className="btn btn--ghost admin-btn" onClick={load} disabled={loading}>
+          <button
+            className="btn btn--ghost admin-btn"
+            onClick={load}
+            disabled={loading}
+          >
             Atualizar
           </button>
           <button
@@ -272,90 +207,11 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
 
       <div className="admin-body container">
         {error && <div className="error-msg">{error}</div>}
-        {!error && !loading && searchFiltered.length > 0 && (
-          <section className="afya-analysis" aria-labelledby="afya-analysis-title">
-            <h2 className="afya-analysis__title" id="afya-analysis-title">Distribuição das respostas</h2>
-            <p className="afya-analysis__description">
-              Percentual sobre as respostas de cada fase. A busca aplicada também filtra esta análise.
-            </p>
-            {momentFilter === "all" && (
-              <div className="afya-analysis__paired">
-                {congresso ? (
-                  <>
-                    <strong>Comparação individual indisponível:</strong>{" "}
-                    as respostas do simpósio são anônimas. A tabela compara a distribuição agregada entre pré e pós.
-                  </>
-                ) : (
-                  <>
-                    <strong>Comparação individual:</strong>{" "}
-                    {paired.length
-                      ? `${paired.length} pares identificados por CRM/e-mail; ${changedPairs} (${formatPercent(changedPairs, paired.length)}) mudaram ao menos uma alternativa. Acertos: ${improvedPairs} (${formatPercent(improvedPairs, paired.length)}) melhoraram, ${unchangedPairs} (${formatPercent(unchangedPairs, paired.length)}) mantiveram e ${declinedPairs} (${formatPercent(declinedPairs, paired.length)}) reduziram.`
-                      : "nenhum participante foi identificado nas duas fases pelo CRM ou e-mail."}
-                  </>
-                )}
-              </div>
-            )}
-            <div className="table-wrap">
-              <table className="admin-table afya-analysis__table">
-                <thead>
-                  <tr>
-                    <th>Questão</th>
-                    <th>Alternativa</th>
-                    {momentFilter === "all" ? (
-                      <>
-                        <th>Pré ({analysisPreRows.length})</th>
-                        <th>Pós ({analysisPostRows.length})</th>
-                        <th>Variação</th>
-                      </>
-                    ) : (
-                      <th>{momentFilter === "pre" ? "Pré" : "Pós"} ({analysisRows.length})</th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {PRE_ANSWERS.map((answers, questionIndex) => (
-                    ["A", "B", "C", "D"].map((option) => {
-                      const preCountForOption = analysisPreRows.filter(
-                        (row) => row.respostas?.[questionIndex] === option,
-                      ).length;
-                      const postCountForOption = analysisPostRows.filter(
-                        (row) => row.respostas?.[questionIndex] === option,
-                      ).length;
-                      const selectedCount = analysisRows?.filter(
-                        (row) => row.respostas?.[questionIndex] === option,
-                      ).length;
-                      const variation = analysisPreRows.length && analysisPostRows.length
-                        ? (postCountForOption / analysisPostRows.length - preCountForOption / analysisPreRows.length) * 100
-                        : null;
-                      return (
-                        <tr key={`${questionIndex}-${option}`}>
-                          <td>Pergunta {questionIndex + 1}</td>
-                          <td className="afya-analysis__answer">
-                            <strong>{option}{option === "C" ? " (correta)" : ""}.</strong> {answers[option]}
-                          </td>
-                          {momentFilter === "all" ? (
-                            <>
-                              <td>{preCountForOption} ({formatPercent(preCountForOption, analysisPreRows.length)})</td>
-                              <td>{postCountForOption} ({formatPercent(postCountForOption, analysisPostRows.length)})</td>
-                              <td>{variation === null ? "—" : formatPercentagePoint(variation)}</td>
-                            </>
-                          ) : (
-                            <td>{selectedCount} ({formatPercent(selectedCount, analysisRows.length)})</td>
-                          )}
-                        </tr>
-                      );
-                    })
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
         {!error && !loading && filtered.length === 0 && (
           <p className="admin-empty">
             {momentFilter === "all"
               ? "Nenhum cadastro do Congresso de Pediatria encontrado."
-              : `Nenhum cadastro de ${momentFilter === "pre" ? "pré" : "pós"}-${congresso ? "simpósio" : "aula"} encontrado.`}
+              : `Nenhum cadastro de ${momentFilter === "pre" ? "pré" : "pós"}-aula encontrado.`}
           </p>
         )}
         {!error && filtered.length > 0 && (
@@ -363,18 +219,22 @@ export default function AfyaRegistrationsPage({ congresso = false }) {
             <table className="admin-table admin-table--afya">
               <thead>
                 <tr>
-                  {columns.map((column) => <th key={column.key}>{column.label}</th>)}
+                  {COLUMNS.map((column) => (
+                    <th key={column.key}>{column.label}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((row) => (
                   <tr key={row.id}>
-                    {columns.map((column) => (
+                    {COLUMNS.map((column) => (
                       <td
                         key={column.key}
-                        className={column.answerIndex !== undefined ? "admin-answer" : ""}
+                        className={
+                          column.answerIndex !== undefined ? "admin-answer" : ""
+                        }
                       >
-                        {cellValue(row, column, congresso)}
+                        {cellValue(row, column)}
                       </td>
                     ))}
                   </tr>

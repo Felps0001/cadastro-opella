@@ -86,6 +86,7 @@ router.get("/afya-quiz", requireStaff, async (req, res) => {
         email: response.email || "",
         campus: response.campus || "",
         lgpdConsent: Boolean(response.lgpdConsent),
+        quizVersion: response.quizVersion || "legacy",
         respostas: Array.isArray(response.respostas) ? response.respostas : [],
         notaClareza: response.notaClareza ?? null,
         notaRelevancia: response.notaRelevancia ?? null,
@@ -192,7 +193,7 @@ router.get("/lookup/:code", requireStaff, async (req, res) => {
       telefone: minasRegistration.whatsapp,
       purpose: isPhoto ? "photo" : "gift",
       purposeLabel: isPhoto ? "Foto" : "Brinde",
-      signatureRequired: !isPhoto && !minasRegistration.estudante,
+      signatureRequired: !isPhoto,
       redeemed: isPhoto
         ? minasRegistration.photoRedeemed
         : minasRegistration.giftRedeemed,
@@ -257,7 +258,7 @@ router.post("/redeem/:code", requireStaff, async (req, res) => {
     const redeemedAtField = isPhoto ? "photoRedeemedAt" : "giftRedeemedAt";
     const purpose = isPhoto ? "photo" : "gift";
     const purposeLabel = isPhoto ? "Foto" : "Brinde";
-    if (!isPhoto && !minasRegistration.estudante && (
+    if (!isPhoto && (
       !/^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(signatureDataUrl) ||
       signatureDataUrl.length > 500_000
     )) {
@@ -269,9 +270,7 @@ router.post("/redeem/:code", requireStaff, async (req, res) => {
       [redeemedField]: true,
       [redeemedAtField]: redeemedAt,
     };
-    if (!isPhoto && !minasRegistration.estudante) {
-      updateFields.giftSignatureDataUrl = signatureDataUrl;
-    }
+    if (!isPhoto) updateFields.giftSignatureDataUrl = signatureDataUrl;
 
     const updated = await MinasRegistration.findOneAndUpdate(
       { _id: minasRegistration._id, [redeemedField]: false },

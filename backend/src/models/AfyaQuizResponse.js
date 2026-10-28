@@ -9,6 +9,11 @@ const afyaQuizResponseSchema = new mongoose.Schema(
       default: "afya",
       index: true,
     },
+    quizVersion: {
+      type: String,
+      enum: ["legacy", "afya-2026-10-28"],
+      default: "legacy",
+    },
     momento: {
       type: String,
       enum: ["pre", "pos"],

@@ -5,7 +5,8 @@ function loadImage(source) {
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error("Não foi possível carregar a imagem."));
+    image.onerror = () =>
+      reject(new Error("Não foi possível carregar a imagem."));
     image.src = source;
   });
 }
@@ -21,19 +22,27 @@ export default function CongressPhotoPage() {
   const [status, setStatus] = useState("");
 
   useEffect(() => {
-    if (!cameraOpen || !streamRef.current || !videoRef.current) return undefined;
+    if (!cameraOpen || !streamRef.current || !videoRef.current)
+      return undefined;
     const video = videoRef.current;
     video.srcObject = streamRef.current;
-    video.play().catch(() => setError("Não foi possível iniciar a câmera neste dispositivo."));
+    video
+      .play()
+      .catch(() =>
+        setError("Não foi possível iniciar a câmera neste dispositivo."),
+      );
     return () => {
       video.pause();
       video.srcObject = null;
     };
   }, [cameraOpen]);
 
-  useEffect(() => () => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-  }, []);
+  useEffect(
+    () => () => {
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+    },
+    [],
+  );
 
   function stopCamera() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -50,7 +59,9 @@ export default function CongressPhotoPage() {
     }
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      setError("A câmera não está disponível. Abra esta página em HTTPS ou localhost.");
+      setError(
+        "A câmera não está disponível. Abra esta página em HTTPS ou localhost.",
+      );
       return;
     }
 
@@ -136,7 +147,11 @@ export default function CongressPhotoPage() {
       const centerX = canvas.width * 0.5;
       const centerY = canvas.height * 0.506;
       const radius = diameter / 2;
-      const scale = Math.max(diameter / photo.naturalWidth, diameter / photo.naturalHeight) * zoom;
+      const scale =
+        Math.max(
+          diameter / photo.naturalWidth,
+          diameter / photo.naturalHeight,
+        ) * zoom;
       const drawnWidth = photo.naturalWidth * scale;
       const drawnHeight = photo.naturalHeight * scale;
 
@@ -169,7 +184,9 @@ export default function CongressPhotoPage() {
         setStatus("Pôster baixado com sucesso.");
       }, "image/png");
     } catch {
-      setError("Não foi possível montar o pôster. Tente selecionar outra imagem.");
+      setError(
+        "Não foi possível montar o pôster. Tente selecionar outra imagem.",
+      );
     }
   }
 
@@ -185,9 +202,14 @@ export default function CongressPhotoPage() {
     <main className="photo-page">
       <header className="photo-page__header">
         <div className="photo-page__header-inner">
-          <p className="photo-page__eyebrow">42º Congresso Brasileiro de Pediatria</p>
+          <p className="photo-page__eyebrow">
+            42º Congresso Brasileiro de Pediatria
+          </p>
           <h1>Leve sua lembrança</h1>
-          <p>Coloque seu rosto na arte do simpósio e baixe o pôster personalizado.</p>
+          <p>
+            Coloque seu rosto na arte do simpósio e baixe o pôster
+            personalizado.
+          </p>
         </div>
       </header>
 
@@ -213,16 +235,28 @@ export default function CongressPhotoPage() {
                 style={{ transform: `scaleX(-1) scale(${zoom})` }}
               />
             )}
-            <img className="photo-poster__mask" src={maskImageUrl} alt="Arte do simpósio do Congresso Brasileiro de Pediatria" />
+            <img
+              className="photo-poster__mask"
+              src={maskImageUrl}
+              alt="Arte do simpósio do Congresso Brasileiro de Pediatria"
+            />
           </div>
           <div className="photo-preview__tools">
             <div className="photo-actions">
               {photoDataUrl ? (
                 <>
-                  <button className="btn btn--primary" type="button" onClick={downloadPoster}>
+                  <button
+                    className="btn btn--primary"
+                    type="button"
+                    onClick={downloadPoster}
+                  >
                     Baixar pôster PNG
                   </button>
-                  <button className="btn btn--ghost" type="button" onClick={clearPhoto}>
+                  <button
+                    className="btn btn--ghost"
+                    type="button"
+                    onClick={clearPhoto}
+                  >
                     Trocar foto
                   </button>
                 </>
@@ -245,7 +279,11 @@ export default function CongressPhotoPage() {
                 </>
               )}
               {cameraOpen && (
-                <button className="photo-camera-close" type="button" onClick={stopCamera}>
+                <button
+                  className="photo-camera-close"
+                  type="button"
+                  onClick={stopCamera}
+                >
                   Fechar câmera
                 </button>
               )}
@@ -274,9 +312,19 @@ export default function CongressPhotoPage() {
               </div>
             )}
 
-            {error && <p className="photo-message photo-message--error" role="alert">{error}</p>}
-            {status && <p className="photo-message" role="status">{status}</p>}
-            <p className="photo-privacy">A imagem é montada neste dispositivo e não é enviada ao servidor.</p>
+            {error && (
+              <p className="photo-message photo-message--error" role="alert">
+                {error}
+              </p>
+            )}
+            {status && (
+              <p className="photo-message" role="status">
+                {status}
+              </p>
+            )}
+            <p className="photo-privacy">
+              A imagem é montada neste dispositivo e não é enviada ao servidor.
+            </p>
           </div>
         </section>
       </div>
